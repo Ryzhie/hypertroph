@@ -340,7 +340,8 @@
 .target-msg {
   margin: 8px 0 0;
 }
-.exercise-card-foot {
+.exercise-card-foot,
+.session-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -438,4 +439,153 @@
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--accent-strong);
+}
+
+/* ---- History screen ---- */
+.view-toggle {
+  margin-bottom: 14px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.stat-sub {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.session-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  padding: 0;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.session-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.session-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.02rem;
+}
+.chevron {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  padding-top: 4px;
+}
+
+.session-summary {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.session-summary li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+}
+.session-detail {
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+.hist-exercise {
+  margin-bottom: 10px;
+}
+.hist-exercise-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.hist-set {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 0;
+}
+.hist-set .set-index {
+  padding-bottom: 0;
+}
+
+.progress-card .card-title {
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.hist-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  padding: 4px 0;
+}
+.hist-table td {
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.hist-table .num {
+  text-align: right;
+}
+
+.e1rm-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.e1rm-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.e1rm-end-label {
+  fill: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+}
+.e1rm-axis-label {
+  fill: var(--text-faint);
+  font-size: 9px;
 }
