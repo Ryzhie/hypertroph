@@ -11,6 +11,10 @@ export type InstructionMode =
   | 'deload'
   | 're-acclimate'
   | 'range-bump'
+  // Display-only modes (from currentTarget, not a session evaluation):
+  | 'new'
+  | 'deload-suggested'
+  | 'target'
 
 /** What the user should do NEXT session for this exercise. */
 export interface Instruction {
@@ -22,6 +26,16 @@ export interface Instruction {
   message: string
   suggestDeload: boolean
 }
+
+const makeInstruction = (
+  mode: InstructionMode,
+  weightKg: number,
+  repsRange: [number, number],
+  sets: number,
+  rpeTarget: number,
+  message: string,
+  suggestDeload = false,
+): Instruction => ({ mode, weightKg, repsRange, sets, rpeTarget, message, suggestDeload })
 
 export interface EvaluateInput {
   progress: ExerciseProgress
@@ -88,7 +102,7 @@ export function evaluateSession(
     rpeTarget: number,
     message: string,
     suggestDeload = false,
-  ): Instruction => ({ mode, weightKg, repsRange, sets, rpeTarget, message, suggestDeload })
+  ): Instruction => makeInstruction(mode, weightKg, repsRange, sets, rpeTarget, message, suggestDeload)
 
   // --- Gap guard: a layoff is never a stall ---
   if (
@@ -284,4 +298,71 @@ export function evaluateSession(
         `try to hit ${lo}.`,
     ),
   }
+}
+
+/**
+ * What to show on the Today screen BEFORE a session: the standing target for
+ * the next time this exercise comes up. Derived from carried progress + plan,
+ * never mutates anything.
+ */
+export function currentTarget(
+  progress: ExerciseProgress | undefined,
+  effectiveRepsRange: [number, number],
+  sets: number,
+  params: AlgorithmParams,
+  dateKey: string,
+): Instruction {
+  if (!progress) {
+    return makeInstruction(
+      'new',
+      0,
+      effectiveRepsRange,
+      sets,
+      params.rpeTarget,
+      'First time — pick a weight and log your first set.',
+    )
+  }
+  if (progress.deloadedAt && daysBetween(progress.deloadedAt, dateKey) <= 7) {
+    return makeInstruction(
+      'deload',
+      progress.weightKg,
+      progress.repsRange,
+      sets,
+      6,
+      'Deload week — keep it light (RPE ~6), then rebuild.',
+    )
+  }
+  if (progress.suggestDeload) {
+    return makeInstruction(
+      'deload-suggested',
+      progress.weightKg,
+      progress.repsRange,
+      sets,
+      params.rpeTarget,
+      'Strength has dipped — consider a light week.',
+      true,
+    )
+  }
+  if (
+    progress.lastSessionDate &&
+    daysBetween(progress.lastSessionDate, dateKey) > params.gapDaysThreshold
+  ) {
+    return makeInstruction(
+      're-acclimate',
+      progress.weightKg,
+      progress.repsRange,
+      sets,
+      params.rpeTarget,
+      'Back after a break — same weight, smooth reps.',
+    )
+  }
+  return makeInstruction(
+    'target',
+    progress.weightKg,
+    progress.repsRange,
+    sets,
+    params.rpeTarget,
+    `Lift ${progress.weightKg} kg for ${progress.repsRange[0]}–${progress.repsRange[1]} reps, ` +
+      `RPE ~${params.rpeTarget}.`,
+  )
 }

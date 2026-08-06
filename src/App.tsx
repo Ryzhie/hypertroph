@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
+import { seedIfNeeded } from './db/seed'
 import TodayScreen from './screens/TodayScreen'
+import LoggingScreen from './screens/LoggingScreen'
 import HistoryScreen from './screens/HistoryScreen'
 import ExercisesScreen from './screens/ExercisesScreen'
 import SplitsScreen from './screens/SplitsScreen'
@@ -17,6 +19,12 @@ const TABS = [
 
 export default function App() {
   const [needsRefresh, setNeedsRefresh] = useState(false)
+
+  // First run: populate the exercise catalog, preset splits, and settings.
+  useEffect(() => {
+    void seedIfNeeded()
+  }, [])
+
   const updateSW = registerSW({
     onNeedRefresh() {
       setNeedsRefresh(true)
@@ -51,6 +59,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<TodayScreen />} />
+        <Route path="/log" element={<LoggingScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/exercises" element={<ExercisesScreen />} />
         <Route path="/plans" element={<SplitsScreen />} />

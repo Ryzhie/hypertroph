@@ -14,9 +14,13 @@ function week(mapping: Record<string, string | null>): (string | null)[] {
   return arr
 }
 
-function buildDay(name: string, exerciseIds: string[]): PlanDay {
+/**
+ * A plan day. The `id` doubles as the schedule key, so it must be a stable
+ * label like 'A', 'B', 'C' (not a random UUID).
+ */
+function buildDay(id: string, name: string, exerciseIds: string[]): PlanDay {
   return {
-    id: crypto.randomUUID(),
+    id,
     name,
     isRest: false,
     exercises: exerciseIds.map(
@@ -41,11 +45,11 @@ export const SPLIT_SEED: Split[] = [
     'Bro Split',
     week({ Mon: 'A', Tue: 'B', Wed: 'C', Thu: 'D', Fri: 'E' }),
     [
-      buildDay('Chest', ['barbell-bench-press', 'incline-dumbbell-press', 'dumbbell-bench-press', 'cable-fly', 'push-up']),
-      buildDay('Back', ['deadlift', 'barbell-row', 'lat-pulldown', 'seated-cable-row', 'face-pull']),
-      buildDay('Legs', ['back-squat', 'romanian-deadlift', 'leg-press', 'leg-extension', 'leg-curl']),
-      buildDay('Shoulders', ['overhead-press', 'dumbbell-shoulder-press', 'lateral-raise', 'rear-delt-fly']),
-      buildDay('Arms', ['barbell-curl', 'hammer-curl', 'triceps-pushdown', 'overhead-triceps-extension', 'dips']),
+      buildDay('A', 'Chest', ['barbell-bench-press', 'incline-dumbbell-press', 'dumbbell-bench-press', 'cable-fly', 'push-up']),
+      buildDay('B', 'Back', ['deadlift', 'barbell-row', 'lat-pulldown', 'seated-cable-row', 'face-pull']),
+      buildDay('C', 'Legs', ['back-squat', 'romanian-deadlift', 'leg-press', 'leg-extension', 'leg-curl']),
+      buildDay('D', 'Shoulders', ['overhead-press', 'dumbbell-shoulder-press', 'lateral-raise', 'rear-delt-fly']),
+      buildDay('E', 'Arms', ['barbell-curl', 'hammer-curl', 'triceps-pushdown', 'overhead-triceps-extension', 'dips']),
     ],
   ),
 
@@ -54,9 +58,9 @@ export const SPLIT_SEED: Split[] = [
     'Push Pull Leg',
     week({ Mon: 'A', Tue: 'B', Wed: 'C', Thu: 'A', Fri: 'B', Sat: 'C' }),
     [
-      buildDay('Push', ['barbell-bench-press', 'overhead-press', 'incline-dumbbell-press', 'lateral-raise', 'triceps-pushdown', 'dips']),
-      buildDay('Pull', ['deadlift', 'barbell-row', 'lat-pulldown', 'face-pull', 'barbell-curl', 'hammer-curl']),
-      buildDay('Legs', ['back-squat', 'romanian-deadlift', 'leg-press', 'leg-curl', 'standing-calf-raise']),
+      buildDay('A', 'Push', ['barbell-bench-press', 'overhead-press', 'incline-dumbbell-press', 'lateral-raise', 'triceps-pushdown', 'dips']),
+      buildDay('B', 'Pull', ['deadlift', 'barbell-row', 'lat-pulldown', 'face-pull', 'barbell-curl', 'hammer-curl']),
+      buildDay('C', 'Legs', ['back-squat', 'romanian-deadlift', 'leg-press', 'leg-curl', 'standing-calf-raise']),
     ],
   ),
 
@@ -65,8 +69,8 @@ export const SPLIT_SEED: Split[] = [
     'Upper / Lower',
     week({ Mon: 'A', Tue: 'B', Thu: 'A', Fri: 'B' }),
     [
-      buildDay('Upper', ['barbell-bench-press', 'barbell-row', 'overhead-press', 'lat-pulldown', 'barbell-curl', 'triceps-pushdown']),
-      buildDay('Lower', ['back-squat', 'romanian-deadlift', 'leg-extension', 'leg-curl', 'standing-calf-raise']),
+      buildDay('A', 'Upper', ['barbell-bench-press', 'barbell-row', 'overhead-press', 'lat-pulldown', 'barbell-curl', 'triceps-pushdown']),
+      buildDay('B', 'Lower', ['back-squat', 'romanian-deadlift', 'leg-extension', 'leg-curl', 'standing-calf-raise']),
     ],
   ),
 
@@ -75,7 +79,7 @@ export const SPLIT_SEED: Split[] = [
     'Full Body',
     week({ Mon: 'A', Wed: 'A', Fri: 'A' }),
     [
-      buildDay('Full Body', ['back-squat', 'barbell-bench-press', 'barbell-row', 'overhead-press', 'ab-wheel-rollout']),
+      buildDay('A', 'Full Body', ['back-squat', 'barbell-bench-press', 'barbell-row', 'overhead-press', 'ab-wheel-rollout']),
     ],
   ),
 ]

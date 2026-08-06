@@ -33,6 +33,8 @@ export interface AlgorithmParams {
 export interface Settings {
   splitId: string
   weekStart: WeekStart
+  /** Display/input unit only — all algorithm math stays canonical kg. */
+  weightUnit: WeightUnit
   params: AlgorithmParams
 }
 

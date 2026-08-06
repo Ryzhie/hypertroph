@@ -275,3 +275,167 @@
   color: var(--accent-strong);
   background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
+
+/* ---- Today screen ---- */
+.today-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.today-header h2 {
+  font-size: 1.5rem;
+  margin: 2px 0 0;
+}
+
+.warn-card {
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+}
+
+.exercise-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+.exercise-card:active {
+  border-color: var(--accent);
+}
+
+.exercise-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.exercise-name {
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+
+.target-big {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.target-unit {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-left: 6px;
+  color: var(--text-dim);
+}
+.target-x {
+  font-size: 1.2rem;
+  color: var(--accent-strong);
+}
+.target-sub {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+.target-msg {
+  margin: 8px 0 0;
+}
+.exercise-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.start-btn {
+  margin-top: 8px;
+  padding: 16px;
+  font-size: 1.1rem;
+}
+
+/* ---- Logging screen ---- */
+.topbar-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.exercise-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr 34px;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+.set-index {
+  align-self: center;
+  text-align: center;
+  color: var(--text-faint);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding-bottom: 12px;
+}
+.set-field-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.set-field input {
+  width: 100%;
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 700;
+}
+.set-remove {
+  align-self: center;
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 1.1rem;
+  padding: 8px;
+}
+.set-remove:active {
+  color: var(--danger);
+}
+.rpe-picker {
+  grid-column: 1 / -1;
+}
+.rpe-picker button {
+  padding: 8px 6px;
+  font-size: 0.82rem;
+}
+
+.finish-btn {
+  position: sticky;
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  padding: 16px;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.instruction-text {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+.next-weight {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.next-weight .mono {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-strong);
+}

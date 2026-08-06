@@ -19,6 +19,7 @@ export async function seedIfNeeded(): Promise<void> {
       id: SETTINGS_ID,
       splitId: 'bro',
       weekStart: 'monday',
+      weightUnit: 'kg',
       params: defaultParams(),
     })
   })
