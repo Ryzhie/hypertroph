@@ -46,6 +46,8 @@ export interface EvaluateInput {
   effectiveRepsRange: [number, number]
   sets: number
   isBodyweight: boolean
+  /** Dumbbells: weights are per hand; messages say "per hand". */
+  isPerHand?: boolean
   isNovice: boolean
   ladder: number[]
 }
@@ -65,9 +67,19 @@ export function evaluateSession(
   input: EvaluateInput,
   params: AlgorithmParams,
 ): EvaluateResult {
-  const { progress, topSet, dateKey, effectiveRepsRange, sets, isBodyweight, isNovice, ladder } =
-    input
+  const {
+    progress,
+    topSet,
+    dateKey,
+    effectiveRepsRange,
+    sets,
+    isBodyweight,
+    isPerHand = false,
+    isNovice,
+    ladder,
+  } = input
 
+  const w = (kg: number) => (isPerHand ? `${kg} kg per hand` : `${kg} kg`)
   const p: ExerciseProgress = { ...progress, e1rmHistory: [...progress.e1rmHistory] }
   p.lastSessionDate = dateKey
   p.lastTopSet = { weightKg: topSet.weightKg, reps: topSet.reps, rpe: topSet.rpe }
@@ -117,7 +129,7 @@ export function evaluateSession(
         p.weightKg,
         p.repsRange,
         params.rpeTarget,
-        `Back after a break — re-acclimate. Same ${p.weightKg} kg, ` +
+        `Back after a break — re-acclimate. Same ${w(p.weightKg)}, ` +
           `${p.repsRange[0]}–${p.repsRange[1]} reps, keep it smooth.`,
       ),
     }
@@ -132,7 +144,7 @@ export function evaluateSession(
     p.deloadedAt = dateKey
     const msg = isBodyweight
       ? 'Deload week — easy sets, fewer reps, no grind. Reset and rebuild.'
-      : `Deload week — drop to ${newW} kg, ${p.repsRange[0]}–${p.repsRange[1]} reps, ` +
+      : `Deload week — drop to ${w(newW)}, ${p.repsRange[0]}–${p.repsRange[1]} reps, ` +
         `keep it easy (RPE ~6). Reset and rebuild.`
     return { progress: p, instruction: instr('deload', newW, p.repsRange, 6, msg) }
   }
@@ -205,7 +217,7 @@ export function evaluateSession(
           p.weightKg,
           p.repsRange,
           params.rpeTarget,
-          `Hit ${reps} reps but it was a grinder (RPE ${rpe}). Repeat at ${p.weightKg} kg, ` +
+          `Hit ${reps} reps but it was a grinder (RPE ${rpe}). Repeat at ${w(p.weightKg)}, ` +
             `keep RPE ≤ ${params.rpeTarget}.`,
         ),
       }
@@ -224,7 +236,7 @@ export function evaluateSession(
           newW,
           p.repsRange,
           params.rpeTarget,
-          `Hit ${reps}/${hi} — increase to ${newW} kg${mult}. Aim for ${lo}–${hi} reps, ` +
+          `Hit ${reps}/${hi} — increase to ${w(newW)}${mult}. Aim for ${lo}–${hi} reps, ` +
             `RPE ~${params.rpeTarget}.`,
         ),
       }
@@ -252,7 +264,7 @@ export function evaluateSession(
         p.weightKg,
         p.repsRange,
         params.rpeTarget,
-        `${reps} reps at ${p.weightKg} kg. Keep working up to ${hi}; you progress at ${hi}+.`,
+        `${reps} reps at ${w(p.weightKg)}. Keep working up to ${hi}; you progress at ${hi}+.`,
       ),
     }
   }
@@ -269,7 +281,7 @@ export function evaluateSession(
         newW,
         p.repsRange,
         params.rpeTarget,
-        `Only ${reps} reps but it felt easy (RPE ${rpe}) — bump to ${newW} kg.`,
+        `Only ${reps} reps but it felt easy (RPE ${rpe}) — bump to ${w(newW)}.`,
       ),
     }
   }
@@ -294,7 +306,7 @@ export function evaluateSession(
       p.weightKg,
       p.repsRange,
       params.rpeTarget,
-      `Only ${reps} reps — below your ${lo}-rep floor. Stay at ${p.weightKg} kg, ` +
+      `Only ${reps} reps — below your ${lo}-rep floor. Stay at ${w(p.weightKg)}, ` +
         `try to hit ${lo}.`,
     ),
   }
@@ -311,6 +323,7 @@ export function currentTarget(
   sets: number,
   params: AlgorithmParams,
   dateKey: string,
+  isPerHand = false,
 ): Instruction {
   if (!progress) {
     return makeInstruction(
@@ -356,13 +369,14 @@ export function currentTarget(
       'Back after a break — same weight, smooth reps.',
     )
   }
+  const w = (kg: number) => (isPerHand ? `${kg} kg per hand` : `${kg} kg`)
   return makeInstruction(
     'target',
     progress.weightKg,
     progress.repsRange,
     sets,
     params.rpeTarget,
-    `Lift ${progress.weightKg} kg for ${progress.repsRange[0]}–${progress.repsRange[1]} reps, ` +
+    `Lift ${w(progress.weightKg)} for ${progress.repsRange[0]}–${progress.repsRange[1]} reps, ` +
       `RPE ~${params.rpeTarget}.`,
   )
 }

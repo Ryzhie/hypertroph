@@ -5,7 +5,12 @@ import { useSessions } from '../hooks/useSessions'
 import { useProgress } from '../hooks/useProgress'
 import { useSettings } from '../hooks/useSettings'
 import { computeTopSet } from '../services/overload'
-import { formatWeight, formatWeightNumber, toDisplayWeight } from '../utils/format'
+import {
+  formatWeight,
+  formatWeightNumber,
+  perHandSuffix,
+  toDisplayWeight,
+} from '../utils/format'
 import { daysBetween, formatDateKey, todayKey } from '../utils/date'
 import type { WeightUnit } from '../types/settings'
 import type { WorkoutSession, WorkoutSet } from '../types/session'
@@ -103,7 +108,7 @@ function SessionCard({
           {logged.map((l, i) => (
             <li key={i}>
               <span className="muted small">{l.exerciseName}</span>
-              <span className="mono small">{topSetLabel(l.sets, unit)}</span>
+              <span className="mono small">{topSetLabel(l.sets, unit, l.perHand)}</span>
             </li>
           ))}
         </ul>
@@ -117,7 +122,9 @@ function SessionCard({
                   <div key={j} className="hist-set">
                     <span className="set-index">{j + 1}</span>
                     <span className="mono">
-                      {set.weightKg > 0 ? `${formatWeightNumber(set.weightKg, unit)} ${unit}` : ''}
+                      {set.weightKg > 0
+                        ? `${formatWeightNumber(set.weightKg, unit)} ${unit}${perHandSuffix(l.perHand)}`
+                        : ''}
                     </span>
                     <span className="mono faint">× {set.reps}</span>
                     {set.rpe != null && <span className="faint small">RPE {set.rpe}</span>}
@@ -163,8 +170,8 @@ function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
   return (
     <>
       <div className="field progress-select">
-        <label htmlFor="progress-exercise">Exercise</label>
-        <select id="progress-exercise" value={active.id} onChange={(e) => setSelectedId(e.target.value)}>
+        <span className="field-label">Exercise</span>
+        <select value={active.id} onChange={(e) => setSelectedId(e.target.value)}>
           {withProgress.map((e) => (
             <option key={e.id} value={e.id}>
               {e.name}
@@ -178,6 +185,7 @@ function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
         exerciseId={active.id}
         name={active.name}
         isBodyweight={active.isBodyweight === true}
+        perHand={active.perHand === true}
         unit={unit}
       />
     </>
@@ -189,12 +197,14 @@ function ProgressDetail({
   exerciseId,
   name,
   isBodyweight,
+  perHand,
   unit,
 }: {
   sessions: WorkoutSession[]
   exerciseId: string
   name: string
   isBodyweight: boolean
+  perHand: boolean
   unit: WeightUnit
 }) {
   const { progress } = useProgress()
@@ -219,7 +229,7 @@ function ProgressDetail({
             label="Current target"
             value={
               p.weightKg > 0
-                ? `${formatWeightNumber(p.weightKg, unit)} ${unit}`
+                ? `${formatWeightNumber(p.weightKg, unit)} ${unit}${perHandSuffix(perHand)}`
                 : 'Bodyweight'
             }
             sub={`${p.repsRange[0]}–${p.repsRange[1]} reps`}
@@ -229,7 +239,7 @@ function ProgressDetail({
         )}
         <StatTile
           label="e1RM best"
-          value={p.e1rmBest > 0 ? `${fmtNum(toDisplayWeight(p.e1rmBest, unit))} ${unit}` : '—'}
+          value={p.e1rmBest > 0 ? `${fmtNum(toDisplayWeight(p.e1rmBest, unit))} ${unit}${perHandSuffix(perHand)}` : '—'}
           sub={p.e1rmBestDate ? formatDateKey(p.e1rmBestDate) : undefined}
         />
         <StatTile label="At this weight" value={String(p.sessionsAtWeight)} sub={p.sessionsAtWeight === 1 ? 'session' : 'sessions'} />
@@ -245,7 +255,7 @@ function ProgressDetail({
           <div className="card-title" style={{ marginTop: 8 }}>
             Estimated 1RM · {p.e1rmHistory.length} sessions
           </div>
-          <E1rmChart history={p.e1rmHistory} unit={unit} />
+          <E1rmChart history={p.e1rmHistory} unit={unit} perHand={perHand} />
         </>
       )}
 
@@ -266,7 +276,7 @@ function ProgressDetail({
                   <td className="muted small">{formatDateKey(pt.date)}</td>
                   <td className="num mono small">{topByDate.get(pt.date) ?? '—'}</td>
                   <td className="num mono small">
-                    {fmtNum(toDisplayWeight(pt.e1rm, unit))} {unit}
+                    {fmtNum(toDisplayWeight(pt.e1rm, unit))} {unit}{perHandSuffix(perHand)}
                   </td>
                 </tr>
               ))}
@@ -278,7 +288,7 @@ function ProgressDetail({
       {lastTop && p.lastSessionDate && (
         <p className="muted small" style={{ margin: '10px 0 0' }}>
           Last session: {formatDateKey(p.lastSessionDate)} ·{' '}
-          {topSetText(lastTop.weightKg, lastTop.reps, unit)}
+          {topSetText(lastTop.weightKg, lastTop.reps, unit, perHand)}
           {lastTop.rpe != null ? ` · RPE ${lastTop.rpe}` : ''}
         </p>
       )}
@@ -309,20 +319,24 @@ function StatTile({ label, value, sub }: { label: string; value: string; sub?: s
 
 function sessionVolume(s: WorkoutSession): number {
   let v = 0
-  for (const log of s.logs) for (const set of log.sets) v += set.weightKg * set.reps
+  for (const log of s.logs) {
+    // Per-hand lifts count both sides — total weight moved.
+    const sides = log.perHand ? 2 : 1
+    for (const set of log.sets) v += set.weightKg * sides * set.reps
+  }
   return v
 }
 
 /** Display text for a top set; bodyweight (weightKg 0) shows reps only. */
-function topSetText(weightKg: number, reps: number, unit: WeightUnit): string {
+function topSetText(weightKg: number, reps: number, unit: WeightUnit, perHand = false): string {
   if (weightKg <= 0) return `× ${reps}`
-  return `${formatWeight(weightKg, unit)} × ${reps}`
+  return `${formatWeight(weightKg, unit)} × ${reps}${perHandSuffix(perHand)}`
 }
 
-function topSetLabel(sets: WorkoutSet[], unit: WeightUnit): string {
+function topSetLabel(sets: WorkoutSet[], unit: WeightUnit, perHand = false): string {
   const top = computeTopSet(sets)
   if (!top) return '—'
-  return topSetText(top.weightKg, top.reps, unit)
+  return topSetText(top.weightKg, top.reps, unit, perHand)
 }
 
 /**
@@ -340,7 +354,7 @@ function topSetByDate(
     for (const log of s.logs) {
       if (log.exerciseId !== exerciseId) continue
       const top = computeTopSet(log.sets)
-      if (top) m.set(s.dateKey, topSetText(top.weightKg, top.reps, unit))
+      if (top) m.set(s.dateKey, topSetText(top.weightKg, top.reps, unit, log.perHand))
     }
   }
   return m
@@ -360,7 +374,7 @@ const PAD_RIGHT = 6
 const PAD_TOP = 16
 const PAD_BOTTOM = 14
 
-function E1rmChart({ history, unit }: { history: E1rmPoint[]; unit: WeightUnit }) {
+function E1rmChart({ history, unit, perHand }: { history: E1rmPoint[]; unit: WeightUnit; perHand: boolean }) {
   const n = history.length
   if (n === 0) return null
 
@@ -390,7 +404,7 @@ function E1rmChart({ history, unit }: { history: E1rmPoint[]; unit: WeightUnit }
   const [lx, ly] = pts[n - 1]
   const endAnchor = lx > CHART_W - 46 ? 'end' : 'start'
   const endX = lx > CHART_W - 46 ? lx - 9 : lx + 9
-  const lastValue = `${fmtNum(values[n - 1])} ${unit}`
+  const lastValue = `${fmtNum(values[n - 1])} ${unit}${perHandSuffix(perHand)}`
 
   return (
     <svg

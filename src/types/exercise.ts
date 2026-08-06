@@ -39,6 +39,11 @@ export interface Exercise {
   defaultRestSeconds: number
   /** Bodyweight exercises progress by rep range, not weight. */
   isBodyweight?: boolean
+  /**
+   * Dumbbell/single-arm exercises where the weight is PER HAND. Weights are
+   * stored per side; volume counts both sides (×2).
+   */
+  perHand?: boolean
   /** Explicit achievable weights (dumbbells, machines). Falls back to a derived ladder. */
   weightLadder?: number[]
   /** Soft delete — never hard-delete an exercise; history depends on it. */

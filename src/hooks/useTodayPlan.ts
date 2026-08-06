@@ -64,7 +64,14 @@ export function useTodayPlan(): TodayPlan {
         exercise,
         eff,
         progress: progress[exercise.id],
-        target: currentTarget(progress[exercise.id], eff.repsRange, eff.sets, params, today),
+        target: currentTarget(
+          progress[exercise.id],
+          eff.repsRange,
+          eff.sets,
+          params,
+          today,
+          exercise.perHand === true,
+        ),
       })
     }
   }

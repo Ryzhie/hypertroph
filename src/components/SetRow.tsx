@@ -12,16 +12,20 @@ interface Props {
   index: number
   set: DraftSet
   unit: WeightUnit
+  /** Dumbbells: weights are per hand — label the field accordingly. */
+  perHand?: boolean
   onChange: (set: DraftSet) => void
   onRemove: () => void
 }
 
-export default function SetRow({ index, set, unit, onChange, onRemove }: Props) {
+export default function SetRow({ index, set, unit, perHand, onChange, onRemove }: Props) {
   return (
     <div className="set-row">
       <span className="set-index">{index}</span>
       <label className="set-field">
-        <span className="set-field-label">Weight ({unit})</span>
+        <span className="set-field-label">
+          {perHand ? `Weight/hand (${unit})` : `Weight (${unit})`}
+        </span>
         <input
           type="number"
           inputMode="decimal"

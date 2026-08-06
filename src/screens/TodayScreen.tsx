@@ -1,8 +1,22 @@
 import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { useSessions } from '../hooks/useSessions'
-import { formatWeightNumber, formatRepRange, formatRestSeconds } from '../utils/format'
+import { useProgress } from '../hooks/useProgress'
+import { useSettings } from '../hooks/useSettings'
+import { db } from '../db/db'
+import { generateTips, type Tip } from '../services/tips'
+import { computeTopSet } from '../services/overload'
+import {
+  formatWeightNumber,
+  formatRepRange,
+  formatRestSeconds,
+  perHandSuffix,
+  toDisplayWeight,
+} from '../utils/format'
 import { addDaysToKey, formatDateKey, weekdayIndex } from '../utils/date'
+import { defaultParams } from '../algorithm/params'
 import type { Instruction } from '../algorithm/progression'
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -10,6 +24,22 @@ const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 export default function TodayScreen() {
   const plan = useTodayPlan()
   const { sessions } = useSessions()
+  const { progress } = useProgress()
+  const { settings } = useSettings()
+  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
+  const params = settings?.params ?? defaultParams()
+  const tips = useMemo(
+    () =>
+      generateTips({
+        body: settings?.body,
+        progress,
+        sessions,
+        exercises,
+        params,
+        today: plan.today,
+      }),
+    [settings?.body, progress, sessions, exercises, params, plan.today],
+  )
   const unit = plan.targetWeightUnit
 
   const lastSession = sessions[0]
@@ -32,8 +62,13 @@ export default function TodayScreen() {
         <span className="chip">{DAY_LABELS[new Date().getDay()]}</span>
       </header>
 
+      {tips.length > 0 && <TipsSection tips={tips} />}
+
       {plan.isRestDay ? (
-        <RestDay plan={plan} />
+        <>
+          <RestDay plan={plan} />
+          <BodyCard settings={settings} />
+        </>
       ) : (
         <>
           {warned && (
@@ -64,7 +99,10 @@ export default function TodayScreen() {
                   {e.target.weightKg > 0 ? (
                     <>
                       {formatWeightNumber(e.target.weightKg, unit)}
-                      <span className="target-unit">{unit}</span>
+                      <span className="target-unit">
+                        {unit}
+                        {perHandSuffix(e.exercise.perHand)}
+                      </span>
                       <span className="target-x"> × {formatRepRange(e.target.repsRange)}</span>
                     </>
                   ) : (
@@ -140,11 +178,64 @@ function LastResult({
 }) {
   const log = lastSession.logs.find((l) => l.exerciseId === exerciseId)
   if (!log || log.sets.length === 0) return null
-  const top = [...log.sets].sort((a, b) => b.weightKg - a.weightKg)[0]
+  const top = computeTopSet(log.sets)
+  if (!top) return null
   return (
     <span className="faint small">
       Last: {formatWeightNumber(top.weightKg, unit)} {unit} × {top.reps}
+      {perHandSuffix(log.perHand)}
     </span>
+  )
+}
+
+function TipsSection({ tips }: { tips: Tip[] }) {
+  return (
+    <div className="card tips-card">
+      <div className="card-title">Tips</div>
+      {tips.map((t) => (
+        <div key={t.id} className="tip-row">
+          <span className={`chip chip-${t.accent}`}>{t.accent}</span>
+          <div className="tip-text">
+            <span className="tip-headline">{t.headline}</span>
+            {t.detail && <span className="tip-detail faint small">{t.detail}</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['settings'] }) {
+  const body = settings?.body
+  const unit = settings?.weightUnit ?? 'kg'
+  if (!body) {
+    return (
+      <div className="card tips-card">
+        <div className="card-title">Your body</div>
+        <p className="muted small">
+          Add your body profile in{' '}
+          <Link to="/settings" style={{ color: 'var(--accent)' }}>
+            Settings
+          </Link>{' '}
+          to see your avatar and personalized recommendations.
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="card tips-card">
+      <div className="card-title">Your body</div>
+      <div className="body-stats">
+        <span>{body.sex}</span>
+        <span>{body.ageYears} yrs</span>
+        <span>{body.heightCm} cm</span>
+        <span>
+          {Math.round(toDisplayWeight(body.bodyWeightKg, unit) * 10) / 10} {unit}
+        </span>
+        {body.bodyFatPct != null && <span>{body.bodyFatPct}% fat</span>}
+        <span>{body.activityLevel}</span>
+      </div>
+    </div>
   )
 }
 

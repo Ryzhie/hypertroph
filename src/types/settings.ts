@@ -30,12 +30,34 @@ export interface AlgorithmParams {
   isNovice: boolean
 }
 
+export type Sex = 'male' | 'female' | 'other'
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active'
+export type TrainingGoal = 'lose-fat' | 'maintain' | 'muscle-gain'
+export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced'
+
+/**
+ * Anthropometrics + lifestyle. Feeds the dashboard body metrics, tips engine,
+ * and the exported AI-analysis prompt. All optional until the user fills them in.
+ */
+export interface BodyProfile {
+  sex: Sex
+  ageYears: number
+  heightCm: number
+  bodyWeightKg: number
+  bodyFatPct?: number
+  activityLevel: ActivityLevel
+  goal: TrainingGoal
+  experience: ExperienceLevel
+}
+
 export interface Settings {
   splitId: string
   weekStart: WeekStart
   /** Display/input unit only — all algorithm math stays canonical kg. */
   weightUnit: WeightUnit
   params: AlgorithmParams
+  /** Body metrics the user entered (dashboard avatar + tips + AI export). */
+  body?: BodyProfile
 }
 
 export const DEFAULT_PARAMS: AlgorithmParams = {

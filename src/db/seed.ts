@@ -9,11 +9,29 @@ import { defaultParams } from '../algorithm/params'
  */
 export async function seedIfNeeded(): Promise<void> {
   const count = await db.exercises.count()
-  if (count > 0) return
+  if (count > 0) {
+    // v2 migration: backfill perHand on dumbbell exercises that predate the flag.
+    await db.exercises
+      .filter(
+        (e) =>
+          e.perHand === undefined &&
+          !!e.equipment &&
+          e.equipment.toLowerCase().includes('dumbbell'),
+      )
+      .modify({ perHand: true })
+    return
+  }
 
   const now = new Date().toISOString()
   await db.transaction('rw', [db.exercises, db.splits, db.settings], async () => {
-    await db.exercises.bulkPut(EXERCISE_SEED.map((e) => ({ ...e, createdAt: now })))
+    await db.exercises.bulkPut(
+      EXERCISE_SEED.map((e) => ({
+        ...e,
+        // Dumbbells are per-hand by default; explicit perHand can override.
+        perHand: e.perHand ?? (e.equipment?.toLowerCase().includes('dumbbell') ?? false),
+        createdAt: now,
+      })),
+    )
     await db.splits.bulkPut(SPLIT_SEED)
     await db.settings.put({
       id: SETTINGS_ID,

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { db, SETTINGS_ID } from '../db/db'
 import { finishWorkout, type FinishedExercise } from '../services/overload'
-import { fromDisplayWeight, formatWeightNumber } from '../utils/format'
+import { fromDisplayWeight, formatWeightNumber, perHandSuffix } from '../utils/format'
 import SetRow, { type DraftSet } from '../components/SetRow'
 import type { WorkoutExerciseLog, WorkoutSet } from '../types/session'
 
@@ -63,12 +63,18 @@ export default function LoggingScreen() {
               <span className={`chip chip-${chipFor(r.instruction.mode)}`}>{modeLabel(r.instruction.mode)}</span>
             </div>
             <p className="instruction-text">{r.instruction.message}</p>
-            {r.instruction.weightKg > 0 && (
-              <div className="next-weight">
-                <span className="mono">{formatWeightNumber(r.instruction.weightKg, unit)}</span>
-                <span className="faint small">{unit} next time</span>
-              </div>
-            )}
+            {r.instruction.weightKg > 0 && (() => {
+              const entry = plan.entries.find((e) => e.exercise.id === r.exerciseId)
+              const ph = entry?.exercise.perHand === true
+              return (
+                <div className="next-weight">
+                  <span className="mono">{formatWeightNumber(r.instruction.weightKg, unit)}</span>
+                  <span className="faint small">
+                    {unit}{perHandSuffix(ph)} next time
+                  </span>
+                </div>
+              )
+            })()}
           </div>
         ))}
         <button className="btn btn-primary btn-block" onClick={() => navigate('/')}>
@@ -94,7 +100,12 @@ export default function LoggingScreen() {
         sets.push({ weightKg: fromDisplayWeight(weight, unit), reps, rpe: row.rpe })
       }
       if (sets.length > 0) {
-        logs.push({ exerciseId: e.exercise.id, exerciseName: e.exercise.name, sets })
+        logs.push({
+          exerciseId: e.exercise.id,
+          exerciseName: e.exercise.name,
+          perHand: e.exercise.perHand === true,
+          sets,
+        })
       }
     }
     if (logs.length === 0 || !plan.splitId || !plan.day) return
@@ -137,7 +148,7 @@ export default function LoggingScreen() {
                 <div className="faint small">
                   {e.eff.sets} sets · {e.eff.repsRange[0]}–{e.eff.repsRange[1]} reps
                   {e.progress && e.progress.weightKg > 0
-                    ? ` · ${formatWeightNumber(e.progress.weightKg, unit)} ${unit}`
+                    ? ` · ${formatWeightNumber(e.progress.weightKg, unit)} ${unit}${perHandSuffix(e.exercise.perHand)}`
                     : ''}
                 </div>
               </div>
@@ -164,6 +175,7 @@ export default function LoggingScreen() {
                 index={i + 1}
                 set={row}
                 unit={unit}
+                perHand={e.exercise.perHand === true}
                 onChange={(next) =>
                   setDrafts((d) => {
                     const list = [...d[e.exercise.id]]

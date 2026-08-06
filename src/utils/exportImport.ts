@@ -3,6 +3,7 @@ import type { Exercise } from '../types/exercise'
 import type { Split } from '../types/split'
 import type { WorkoutSession } from '../types/session'
 import type { ExerciseProgress } from '../types/progress'
+import type { AiInsight } from '../types/ai'
 
 /** Versioned backup covering ALL user data + algorithm config. */
 export interface BackupFile {
@@ -13,16 +14,19 @@ export interface BackupFile {
   sessions: WorkoutSession[]
   progress: ExerciseProgress[]
   settings: StoredSettings[]
+  /** Present from schema v2; older backups fall back to []. */
+  aiInsights?: AiInsight[]
 }
 
 /** Dump the whole database to a JSON string for download. */
 export async function exportBackup(): Promise<string> {
-  const [exercises, splits, sessions, progress, settings] = await Promise.all([
+  const [exercises, splits, sessions, progress, settings, aiInsights] = await Promise.all([
     db.exercises.toArray(),
     db.splits.toArray(),
     db.sessions.toArray(),
     db.progress.toArray(),
     db.settings.toArray(),
+    db.aiInsights.toArray(),
   ])
   const backup: BackupFile = {
     schemaVersion: SCHEMA_VERSION,
@@ -32,6 +36,7 @@ export async function exportBackup(): Promise<string> {
     sessions,
     progress,
     settings,
+    aiInsights,
   }
   return JSON.stringify(backup, null, 2)
 }
@@ -62,6 +67,10 @@ export function parseBackup(text: string): BackupFile {
       throw new Error(`Backup is missing the "${key}" section.`)
     }
   }
+  // aiInsights is optional so pre-v2 backups still import.
+  if (b.aiInsights !== undefined && !Array.isArray(b.aiInsights)) {
+    throw new Error('Backup "aiInsights" section is malformed.')
+  }
   return b as BackupFile
 }
 
@@ -70,18 +79,20 @@ export async function importBackup(text: string): Promise<void> {
   const backup = parseBackup(text)
   await db.transaction(
     'rw',
-    [db.exercises, db.splits, db.sessions, db.progress, db.settings],
+    [db.exercises, db.splits, db.sessions, db.progress, db.settings, db.aiInsights],
     async () => {
       await db.exercises.clear()
       await db.splits.clear()
       await db.sessions.clear()
       await db.progress.clear()
       await db.settings.clear()
+      await db.aiInsights.clear()
       await db.exercises.bulkPut(backup.exercises)
       await db.splits.bulkPut(backup.splits)
       await db.sessions.bulkPut(backup.sessions)
       await db.progress.bulkPut(backup.progress)
       await db.settings.bulkPut(backup.settings)
+      await db.aiInsights.bulkPut(backup.aiInsights ?? [])
     },
   )
 }

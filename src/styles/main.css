@@ -235,7 +235,7 @@
 .field {
   margin-bottom: 14px;
 }
-.field label {
+.field-label {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
@@ -276,7 +276,86 @@
   background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
-/* ---- Today screen ---- */
+/* ---- Today screen / tips / body stats ---- */
+.tips-card .card-title {
+  margin-bottom: 10px;
+}
+.tip-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+.tip-row + .tip-row {
+  border-top: 1px dashed var(--border);
+}
+.tip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tip-headline {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.tip-detail {
+  line-height: 1.4;
+}
+.body-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.body-stats span {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* ---- Settings / AI analysis ---- */
+.prompt-preview {
+  margin: 10px 0;
+}
+.prompt-preview summary {
+  cursor: pointer;
+}
+.prompt-text {
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+.ai-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 10px;
+}
+.insight-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--border);
+}
+.insight-row:first-of-type {
+  border-top: none;
+}
 .today-header {
   display: flex;
   align-items: flex-start;
@@ -579,6 +658,226 @@
 .e1rm-grid {
   stroke: var(--border);
   stroke-width: 1;
+}
+
+/* ---- Muscle-map body ---- */
+.bodymap {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.bodymap-figure {
+  width: 100%;
+  height: auto;
+}
+.bodymap-figure + .bodymap-figure {
+  max-width: 45%;
+}
+.bodymap-figure:only-child {
+  max-width: 58%;
+}
+.body-region {
+  fill: var(--body-idle);
+  stroke: var(--bg-elevated);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.body-region.on {
+  fill: var(--accent);
+  stroke: var(--accent-strong);
+}
+.body-deco {
+  fill: var(--bg-input);
+  stroke: var(--bg-elevated);
+  stroke-width: 1.5;
+}
+
+/* ---- Exercises catalog screen ---- */
+.search-box {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.filter-chip {
+  cursor: pointer;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.filter-chip.chip-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.exercise-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+}
+.exercise-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.exercise-detail {
+  border-top: 1px dashed var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.muscle-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.exercise-detail-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+.archived-box {
+  padding: 12px;
+}
+.archived-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+}
+.field-row {
+  display: flex;
+  gap: 8px;
+}
+.field-row .field {
+  flex: 1;
+  min-width: 0;
+}
+.check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 8px 0;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.check input {
+  width: auto;
+}
+
+/* ---- Plans / split editor screen ---- */
+.split-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.day-card {
+  padding: 14px 16px;
+}
+.day-rest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.day-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.day-editor {
+  border-top: 1px dashed var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.slot-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+.slot-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto 24px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.slot-row:first-child {
+  border-top: none;
+}
+.slot-move {
+  display: flex;
+  gap: 4px;
+}
+.slot-move .btn-ghost {
+  padding: 2px 6px;
+}
+.slot-move .btn-ghost:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.slot-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.slot-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 1rem;
+  line-height: 1;
+}
+.slot-remove:hover {
+  color: var(--danger);
+}
+.add-panel {
+  margin-top: 12px;
+}
+.suggest-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.suggest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  padding: 9px 2px;
+  text-align: left;
+}
+.suggest-row:first-child {
+  border-top: none;
+}
+.suggest-row:hover {
+  background: var(--bg-input);
 }
 .e1rm-end-label {
   fill: var(--text-dim);

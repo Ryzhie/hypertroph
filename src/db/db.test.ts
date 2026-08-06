@@ -61,7 +61,7 @@ describe('database', () => {
   it('exports and imports a full backup round-trip', async () => {
     const text = await exportBackup()
     const backup = parseBackup(text)
-    expect(backup.schemaVersion).toBe(1)
+    expect(backup.schemaVersion).toBe(2)
     expect(backup.exercises.length).toBeGreaterThan(0)
 
     // Wipe everything, then restore from the backup.

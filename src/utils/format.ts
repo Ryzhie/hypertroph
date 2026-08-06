@@ -26,6 +26,11 @@ export function formatWeightNumber(kg: number, unit: WeightUnit): string {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)
 }
 
+/** " per hand" for dumbbell/single-arm lifts, otherwise "". */
+export function perHandSuffix(perHand?: boolean): string {
+  return perHand ? ' per hand' : ''
+}
+
 export function formatRepRange(range: [number, number]): string {
   return `${range[0]}–${range[1]}`
 }

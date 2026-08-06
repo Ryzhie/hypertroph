@@ -83,6 +83,10 @@ export async function finishWorkout(input: FinishWorkoutInput): Promise<FinishWo
     const topSet = computeTopSet(log.sets)
     if (!topSet) continue
 
+    // Snap the per-hand flag into the log so history volume/display is
+    // self-contained even if the catalog entry changes later.
+    log.perHand = exercise.perHand === true
+
     const slot = day.exercises.find((s) => s.exerciseId === log.exerciseId)
     const eff = slot ? effective(slot, exercise) : {
       sets: exercise.defaultSets,
@@ -108,6 +112,7 @@ export async function finishWorkout(input: FinishWorkoutInput): Promise<FinishWo
         effectiveRepsRange: eff.repsRange,
         sets: eff.sets,
         isBodyweight: exercise.isBodyweight === true,
+        isPerHand: exercise.perHand === true,
         isNovice: progress.isNovice ?? params.isNovice,
         ladder: ladderFor(exercise, params.incrementKg),
       },

@@ -12,6 +12,11 @@ export interface WorkoutExerciseLog {
   exerciseId: string
   /** Snapshot of the exercise name so history survives edits/archives. */
   exerciseName: string
+  /**
+   * Snapshot of whether weights are per hand (dumbbells). Set weightKg is per
+   * side; volume counts both sides (×2). Keeps history self-contained.
+   */
+  perHand?: boolean
   sets: WorkoutSet[]
 }
 
