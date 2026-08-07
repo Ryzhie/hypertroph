@@ -82,6 +82,11 @@ export default function SplitsScreen() {
     setQuery('')
   }
 
+  async function renameSplit(newName: string) {
+    if (!newName.trim() || !split) return
+    await db.splits.update(split.id, { name: newName.trim(), template: false })
+  }
+
   async function duplicate(s: Split) {
     const copy: Split = {
       ...s,
@@ -136,8 +141,14 @@ export default function SplitsScreen() {
     <div className="screen splits-screen">
       <h2 className="topbar-title">Plans</h2>
       <p className="muted small">
-        Active plan: <strong>{split.name}</strong>. Tap a day to change which exercises it
-        includes.
+        Active plan:{' '}
+        <input
+          className="inline-edit"
+          value={split.name}
+          onBlur={(e) => void renameSplit(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+        />
+        . Tap a day to change which exercises it includes.
       </p>
 
       <div className="split-switch">

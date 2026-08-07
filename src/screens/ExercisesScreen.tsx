@@ -154,6 +154,93 @@ function ExerciseCard({
 }
 
 function ExerciseDetail({ exercise }: { exercise: Exercise }) {
+  const [editing, setEditing] = useState(false)
+  const [name, setName] = useState(exercise.name)
+  const [equipment, setEquipment] = useState(exercise.equipment ?? '')
+  const [category, setCategory] = useState<ExerciseCategory>(exercise.category)
+  const [sets, setSets] = useState(exercise.defaultSets)
+  const [repsMin, setRepsMin] = useState(exercise.defaultRepsRange[0])
+  const [repsMax, setRepsMax] = useState(exercise.defaultRepsRange[1])
+  const [rest, setRest] = useState(exercise.defaultRestSeconds)
+  const [groups, setGroups] = useState<MuscleGroup[]>(exercise.muscleGroups)
+
+  // Re-sync when exercise changes (e.g. re-expands after DB update).
+  useState(() => {
+    setName(exercise.name)
+    setEquipment(exercise.equipment ?? '')
+    setCategory(exercise.category)
+    setSets(exercise.defaultSets)
+    setRepsMin(exercise.defaultRepsRange[0])
+    setRepsMax(exercise.defaultRepsRange[1])
+    setRest(exercise.defaultRestSeconds)
+    setGroups(exercise.muscleGroups)
+  })
+
+  async function save() {
+    await db.exercises.update(exercise.id, {
+      name: name.trim() || exercise.name,
+      equipment: equipment || undefined,
+      category,
+      defaultSets: sets,
+      defaultRepsRange: [repsMin, repsMax],
+      defaultRestSeconds: rest,
+      muscleGroups: groups,
+    })
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="exercise-detail">
+        <label className="field">
+          <span className="field-label">Name</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
+        <div className="field-row">
+          <label className="field">
+            <span className="field-label">Equipment</span>
+            <select value={equipment} onChange={(e) => setEquipment(e.target.value)}>
+              {EQUIPMENT_OPTIONS.map((eq) => <option key={eq}>{eq}</option>)}
+            </select>
+          </label>
+          <label className="field">
+            <span className="field-label">Category</span>
+            <select value={category} onChange={(e) => setCategory(e.target.value as ExerciseCategory)}>
+              <option value="compound">Compound</option>
+              <option value="isolation">Isolation</option>
+            </select>
+          </label>
+        </div>
+        <div className="field-row">
+          <label className="field">
+            <span className="field-label">Sets</span>
+            <input type="number" min={1} value={sets} onChange={(e) => setSets(Number(e.target.value))} />
+          </label>
+          <label className="field">
+            <span className="field-label">Reps min</span>
+            <input type="number" min={1} value={repsMin} onChange={(e) => setRepsMin(Number(e.target.value))} />
+          </label>
+          <label className="field">
+            <span className="field-label">Reps max</span>
+            <input type="number" min={1} value={repsMax} onChange={(e) => setRepsMax(Number(e.target.value))} />
+          </label>
+          <label className="field">
+            <span className="field-label">Rest (s)</span>
+            <input type="number" min={0} step={15} value={rest} onChange={(e) => setRest(Number(e.target.value))} />
+          </label>
+        </div>
+        <div className="exercise-detail-foot">
+          <button className="btn-ghost btn" onClick={() => setEditing(false)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={() => void save()}>
+            Save
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="exercise-detail">
       <div className="muscle-chips">
@@ -168,12 +255,17 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
         <span className="muted small">
           Rest {formatRest(exercise.defaultRestSeconds)} · {exercise.defaultSets} sets
         </span>
-        <button
-          className="btn-ghost btn"
-          onClick={() => void db.exercises.update(exercise.id, { archived: true })}
-        >
-          Archive
-        </button>
+        <span>
+          <button className="btn-ghost btn" style={{ marginRight: 8 }} onClick={() => setEditing(true)}>
+            Edit
+          </button>
+          <button
+            className="btn-ghost btn"
+            onClick={() => void db.exercises.update(exercise.id, { archived: true })}
+          >
+            Archive
+          </button>
+        </span>
       </div>
     </div>
   )
