@@ -10,15 +10,11 @@ import { defaultParams } from '../algorithm/params'
 export async function seedIfNeeded(): Promise<void> {
   const count = await db.exercises.count()
   if (count > 0) {
-    // v2 migration: backfill perHand on dumbbell exercises that predate the flag.
+    // v3 migration: backfill section on exercises that predate the flag.
+    // All old exercises are 'weights' (calisthenics/cardio/sport are v3 additions).
     await db.exercises
-      .filter(
-        (e) =>
-          e.perHand === undefined &&
-          !!e.equipment &&
-          e.equipment.toLowerCase().includes('dumbbell'),
-      )
-      .modify({ perHand: true })
+      .filter((e) => e.section === undefined)
+      .modify({ section: 'weights' as const })
     return
   }
 

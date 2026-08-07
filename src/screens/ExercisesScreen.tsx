@@ -120,7 +120,7 @@ export default function ExercisesScreen() {
         <AddExerciseForm onDone={() => setAdding(false)} section={section} />
       ) : (
         <button className="btn btn-block" onClick={() => setAdding(true)}>
-          + Add exercise
+          + {section === 'sport' ? 'Add sport' : 'Add exercise'}
         </button>
       )}
     </div>
@@ -343,6 +343,8 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
       defaultRestSeconds: f.rest,
       isBodyweight: f.isBodyweight,
       perHand: f.perHand,
+      tracksDuration: f.section === 'sport' || f.section === 'cardio',
+      defaultDuration: f.section === 'sport' || f.section === 'cardio' ? f.rest : undefined,
       createdAt: new Date().toISOString(),
     })
     onDone()
@@ -357,7 +359,7 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
 
   return (
     <div className="card add-exercise">
-      <div className="card-title">New exercise</div>
+      <div className="card-title">New {section === 'sport' ? 'sport' : 'exercise'}</div>
       <label className="field">
         <span className="field-label">Name</span>
         <input value={f.name} onChange={(e) => set({ name: e.target.value })} placeholder="e.g. Nordic Curl" />
@@ -399,33 +401,58 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
       </div>
 
       <div className="field-row">
-        <label className="field">
-          <span className="field-label">Sets</span>
-          <input
-            type="number"
-            min={1}
-            value={f.sets}
-            onChange={(e) => set({ sets: Number(e.target.value) })}
-          />
-        </label>
-        <label className="field">
-          <span className="field-label">Reps min</span>
-          <input
-            type="number"
-            min={1}
-            value={f.repsMin}
-            onChange={(e) => set({ repsMin: Number(e.target.value) })}
-          />
-        </label>
-        <label className="field">
-          <span className="field-label">Reps max</span>
-          <input
-            type="number"
-            min={1}
-            value={f.repsMax}
-            onChange={(e) => set({ repsMax: Number(e.target.value) })}
-          />
-        </label>
+        {f.section === 'sport' || f.section === 'cardio' ? (
+          <>
+            <label className="field">
+              <span className="field-label">Default duration (min)</span>
+              <input
+                type="number"
+                min={1}
+                value={f.rest}
+                onChange={(e) => set({ rest: Number(e.target.value) })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Sets</span>
+              <input
+                type="number"
+                min={0}
+                value={f.sets}
+                onChange={(e) => set({ sets: Number(e.target.value) })}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="field">
+              <span className="field-label">Sets</span>
+              <input
+                type="number"
+                min={1}
+                value={f.sets}
+                onChange={(e) => set({ sets: Number(e.target.value) })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Reps min</span>
+              <input
+                type="number"
+                min={1}
+                value={f.repsMin}
+                onChange={(e) => set({ repsMin: Number(e.target.value) })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Reps max</span>
+              <input
+                type="number"
+                min={1}
+                value={f.repsMax}
+                onChange={(e) => set({ repsMax: Number(e.target.value) })}
+              />
+            </label>
+          </>
+        )}
         <label className="field">
           <span className="field-label">Rest (s)</span>
           <input
@@ -466,7 +493,7 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
           disabled={!f.name.trim() || f.muscleGroups.length === 0}
           onClick={() => void submit()}
         >
-          Add
+          Add {section === 'sport' ? 'sport' : 'exercise'}
         </button>
       </div>
     </div>
