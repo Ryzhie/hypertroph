@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { useSessions } from '../hooks/useSessions'
@@ -198,16 +198,63 @@ function LastResult({
 }
 
 function TipsSection({ tips }: { tips: TipType[] }) {
+  const [dismissed, setDismissed] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('ht-dismissed-tips')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
+  const [hidden, setHidden] = useState(() => {
+    try { return localStorage.getItem('ht-tips-hidden') === 'true' } catch { return false }
+  })
+
+  function dismiss(id: string) {
+    const next = new Set(dismissed)
+    next.add(id)
+    setDismissed(next)
+    localStorage.setItem('ht-dismissed-tips', JSON.stringify([...next]))
+  }
+
+  function hideAll() {
+    setHidden(true)
+    localStorage.setItem('ht-tips-hidden', 'true')
+  }
+
+  function showAll() {
+    setHidden(false)
+    setDismissed(new Set())
+    localStorage.removeItem('ht-tips-hidden')
+    localStorage.removeItem('ht-dismissed-tips')
+  }
+
+  const visible = tips.filter((t) => !dismissed.has(t.id))
+
+  if (hidden || visible.length === 0) {
+    return (
+      <button type="button" className="btn-ghost btn" style={{ width: '100%', marginBottom: 12, fontSize: '0.85rem' }} onClick={showAll}>
+        {hidden ? 'Show tips' : 'No tips right now'}
+      </button>
+    )
+  }
+
   return (
     <div className="card tips-card">
-      <div className="card-title">Tips</div>
-      {tips.map((t) => (
+      <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        Tips
+        <button type="button" className="btn-ghost btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={hideAll}>
+          Hide all
+        </button>
+      </div>
+      {visible.map((t) => (
         <div key={t.id} className="tip-row">
           <span className={`chip chip-${t.accent}`}>{t.accent}</span>
           <div className="tip-text">
             <span className="tip-headline">{t.headline}</span>
             {t.detail && <span className="tip-detail faint small">{t.detail}</span>}
           </div>
+          <button type="button" className="tip-dismiss" onClick={() => dismiss(t.id)} title="Dismiss">
+            ×
+          </button>
         </div>
       ))}
     </div>
