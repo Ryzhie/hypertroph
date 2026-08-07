@@ -85,7 +85,8 @@ export default function SettingsScreen() {
     a.href = url
     a.download = `hypertroph-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
-    URL.revokeObjectURL(url)
+    // Defer revoke to avoid aborting the download in some browsers.
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
   }
 
   async function doImport(file: File) {

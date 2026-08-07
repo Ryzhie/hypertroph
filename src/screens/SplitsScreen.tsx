@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { useSettings } from '../hooks/useSettings'
@@ -18,6 +18,11 @@ export default function SplitsScreen() {
   const [query, setQuery] = useState('')
 
   const split = splits.find((s) => s.id === activeId) ?? splits[0]
+  // Data still loading from Dexie — render nothing until ready to avoid the
+  // "No split yet" flash on mount (settings loaded after split data).
+  if (!settings && splits.length === 0) {
+    return <div className="screen splits-screen" />
+  }
   if (!split) {
     return (
       <div className="screen">
@@ -32,8 +37,21 @@ export default function SplitsScreen() {
 
   const day = editing ? split.days[editing] : undefined
 
+  function toggleDay(dayKey: string) {
+    setEditing((cur) => {
+      const next = cur === dayKey ? null : dayKey
+      // Reset add panel when switching or closing.
+      setAdding(false)
+      setQuery('')
+      return next
+    })
+  }
+
   async function setActive(id: string) {
     await update({ splitId: id })
+    setEditing(null)
+    setAdding(false)
+    setQuery('')
   }
 
   async function duplicate(s: Split) {
@@ -158,7 +176,7 @@ export default function SplitsScreen() {
             weekday={DAY_LABELS[wi]}
             exercises={exercises}
             open={editing === d.id}
-            onToggle={() => setEditing((cur) => (cur === d.id ? null : d.id))}
+            onToggle={() => toggleDay(d.id)}
             onRename={(name) => void renameDay(d.id, name)}
             onRemove={(index) =>
               void commitExercises(d.id, d.exercises.filter((_, i) => i !== index).map((s) => s.exerciseId))
@@ -230,6 +248,8 @@ function DayCard({
   onAdd: () => void
 }) {
   const [name, setName] = useState(day.name)
+  // Sync input with prop when day changes (e.g., switching splits).
+  useEffect(() => setName(day.name), [day.name])
   const slots = [...day.exercises].sort((a, b) => a.order - b.order)
 
   return (
