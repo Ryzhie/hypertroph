@@ -36,8 +36,10 @@ const WEEKDAY_NAMES_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursda
 export function useTodayPlan(): TodayPlan {
   const { settings } = useSettings()
   const { progress } = useProgress()
-  const splits = useLiveQuery(() => db.splits.toArray(), []) ?? []
-  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
+  const splitsRaw = useLiveQuery(() => db.splits.toArray(), [])
+  const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
+  const splits = Array.isArray(splitsRaw) ? splitsRaw : []
+  const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
 
   const today = todayKey()
   const weekdayName = WEEKDAY_NAMES_FULL[weekdayIndex(today)]

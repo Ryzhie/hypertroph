@@ -4,7 +4,8 @@ import type { WorkoutSession } from '../types/session'
 
 /** Completed sessions, newest first. */
 export function useSessions(): { sessions: WorkoutSession[] } {
-  const sessions =
-    useLiveQuery(() => db.sessions.orderBy('dateKey').reverse().toArray(), []) ?? []
+  const raw =
+    useLiveQuery(() => db.sessions.orderBy('dateKey').reverse().toArray(), [])
+  const sessions = Array.isArray(raw) ? raw : []
   return { sessions }
 }

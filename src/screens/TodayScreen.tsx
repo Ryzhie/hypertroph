@@ -28,7 +28,8 @@ export default function TodayScreen() {
   const { sessions } = useSessions()
   const { progress } = useProgress()
   const { settings } = useSettings()
-  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
+  const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
+  const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
   const params = settings?.params ?? defaultParams()
   const tips = useMemo(
     () =>
