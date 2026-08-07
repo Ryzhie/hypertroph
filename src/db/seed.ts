@@ -10,11 +10,16 @@ import { defaultParams } from '../algorithm/params'
 export async function seedIfNeeded(): Promise<void> {
   const count = await db.exercises.count()
   if (count > 0) {
-    // v3 migration: backfill section on exercises that predate the flag.
-    // All old exercises are 'weights' (calisthenics/cardio/sport are v3 additions).
+    // v3 migration: backfill section + tags on exercises that predate these flags.
+    // All old exercises are 'weights'; tags are copied from the seed data.
+    const tagMap = new Map(EXERCISE_SEED.filter((e) => e.tags && e.tags.length > 0).map((e) => [e.id, e.tags!]))
     await db.exercises
-      .filter((e) => e.section === undefined)
-      .modify({ section: 'weights' as const })
+      .filter((e) => e.section === undefined || (e.tags === undefined && tagMap.has(e.id)))
+      .modify(function () {
+        const self = this as { section?: string; tags?: string[]; id: string }
+        if (self.section === undefined) self.section = 'weights'
+        if (self.tags === undefined && tagMap.has(self.id)) self.tags = tagMap.get(self.id)
+      })
     return
   }
 

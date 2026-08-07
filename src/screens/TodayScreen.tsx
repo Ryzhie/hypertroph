@@ -57,7 +57,7 @@ export default function TodayScreen() {
           <div className="faint small">
             {formatDateKey(plan.today)} · {plan.splitName ?? '—'}
           </div>
-          <h2>
+          <h2 className="topbar-title" style={{ marginBottom: 0 }}>
             {plan.isRestDay ? 'Rest day' : plan.dayName}
           </h2>
         </div>
