@@ -1,4 +1,4 @@
-/* OverLoad app styles. Grows with the screens. */
+/* Hypertrophic app styles. Grows with the screens. */
 
 .app-shell {
   display: flex;
@@ -115,13 +115,23 @@
   }
 
   .nav-side-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 24px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .nav-side-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  .nav-side-brand span {
     font-size: 1.5rem;
     font-weight: 800;
     color: var(--accent);
-    padding: 0 24px 24px;
     letter-spacing: -0.03em;
-    border-bottom: 0.5px solid var(--border);
-    margin-bottom: 16px;
   }
 
   .nav-side a {

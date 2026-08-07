@@ -84,7 +84,10 @@ export default function App() {
 
       {/* Desktop: side navigation */}
       <nav className="nav-side">
-        <div className="nav-side-brand">OverLoad</div>
+        <div className="nav-side-brand">
+          <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="Hypertrophic" className="nav-side-logo" />
+          <span>Hypertrophic</span>
+        </div>
         {NAV_ITEMS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.to === '/'}
             className={({ isActive }) => (isActive ? 'active' : '')}>
@@ -116,7 +119,7 @@ class ErrorBoundary extends Component<
 > {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) {
-    console.error('[OverLoad ErrorBoundary]', error)
+    console.error('[Hypertrophic ErrorBoundary]', error)
     return { error }
   }
   render() {
