@@ -436,6 +436,37 @@
 }
 
 /* ---- Logging screen ---- */
+.exercise-card-logging {
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.exercise-card-logging.open {
+  border-color: var(--accent);
+  cursor: default;
+}
+.exercise-card-logging .exercise-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.exercise-card-logging.open .exercise-head {
+  cursor: default;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+}
+.exercise-head-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
 .topbar-title {
   font-size: 1.35rem;
   font-weight: 800;

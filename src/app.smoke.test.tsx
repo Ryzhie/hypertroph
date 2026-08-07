@@ -43,6 +43,8 @@ describe('app smoke', () => {
 
     const bench = await screen.findByText('Barbell Bench Press')
     const card = bench.closest('.card') as HTMLElement
+    // Exercise cards are collapsed by default — click the header to expand.
+    fireEvent.click(within(card).getByText('Barbell Bench Press'))
     const inputs = await within(card).findAllByRole('spinbutton')
     fireEvent.change(inputs[0], { target: { value: '60' } }) // weight
     fireEvent.change(inputs[1], { target: { value: '10' } }) // reps

@@ -15,6 +15,8 @@ export default function LoggingScreen() {
   const [drafts, setDrafts] = useState<Record<string, DraftSet[]>>({})
   const [result, setResult] = useState<FinishedExercise[] | null>(null)
   const [saving, setSaving] = useState(false)
+  // Only one exercise shows its full set-entry UI at a time.
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   // (Re)build the draft once the day loads or changes.
   useEffect(() => {
@@ -140,9 +142,15 @@ export default function LoggingScreen() {
 
       {plan.entries.map((e) => {
         const rows = drafts[e.exercise.id] ?? []
+        const isOpen = expanded === e.exercise.id
+        const hasData = rows.some((r) => parseInt(r.reps) > 0)
         return (
-          <div key={e.exercise.id} className="card">
-            <div className="exercise-head">
+          <div key={e.exercise.id} className={`card exercise-card-logging ${isOpen ? 'open' : ''}`}>
+            <button
+              type="button"
+              className="exercise-head"
+              onClick={() => setExpanded(isOpen ? null : e.exercise.id)}
+            >
               <div>
                 <div className="exercise-name">{e.exercise.name}</div>
                 <div className="faint small">
@@ -150,24 +158,30 @@ export default function LoggingScreen() {
                   {e.progress && e.progress.weightKg > 0
                     ? ` · ${formatWeightNumber(e.progress.weightKg, unit)} ${unit}${perHandSuffix(e.exercise.perHand)}`
                     : ''}
+                  {hasData && <span className="chip chip-good" style={{ marginLeft: 6, fontSize: '0.7rem' }}>logged</span>}
                 </div>
               </div>
-              {rows.length > 1 && (
-                <button
-                  type="button"
-                  className="btn-ghost btn"
-                  style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-                  onClick={() =>
-                    setDrafts((d) => ({
-                      ...d,
-                      [e.exercise.id]: [...d[e.exercise.id], { weight: '', reps: '', rpe: undefined }],
-                    }))
-                  }
-                >
-                  + set
-                </button>
-              )}
-            </div>
+              <span className="chevron" aria-hidden>{isOpen ? '▴' : '▾'}</span>
+            </button>
+
+            {isOpen && (<>
+              <div className="exercise-head-actions">
+                {rows.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn-ghost btn"
+                    style={{ padding: '6px 10px', fontSize: '0.85rem' }}
+                    onClick={() =>
+                      setDrafts((d) => ({
+                        ...d,
+                        [e.exercise.id]: [...d[e.exercise.id], { weight: '', reps: '', rpe: undefined }],
+                      }))
+                    }
+                  >
+                    + set
+                  </button>
+                )}
+              </div>
 
             {rows.map((row, i) => (
               <SetRow
@@ -203,6 +217,7 @@ export default function LoggingScreen() {
                 + Add set
               </button>
             )}
+            </>)}
           </div>
         )
       })}
