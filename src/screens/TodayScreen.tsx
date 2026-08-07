@@ -53,11 +53,11 @@ export default function TodayScreen() {
       {/* Streak + Volume charts — two columns on desktop */}
       {sessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Streak · 14 days</p>
             <StreakChart sessions={sessions} />
           </motion.div>
-          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Volume · 30 days</p>
             <VolumeChart sessions={sessions} unit={unit} />
           </motion.div>
@@ -82,7 +82,7 @@ export default function TodayScreen() {
           <motion.div variants={staggerContainer} initial="hidden" animate="visible">
             {plan.entries.map((e) => (
               <motion.div key={e.exercise.id} variants={staggerItem}>
-                <Link to="/log" className="block rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:border-accent/40 transition-all duration-200 mb-3">
+                <Link to="/log" className="block rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:border-accent/40 transition-all duration-200 mb-3">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-bold tracking-tight">{e.exercise.name}</h3>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -139,7 +139,7 @@ export default function TodayScreen() {
 function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   const next = nextWorkout(plan)
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-8 text-center shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-8 text-center shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="text-5xl mb-4 opacity-70">😴</div>
       <h3 className="text-xl font-bold mb-2">Rest day</h3>
       <p className="text-sm text-muted-foreground">
@@ -156,7 +156,7 @@ function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['sett
   const unit = settings?.weightUnit ?? 'kg'
   if (!body) {
     return (
-      <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-6 text-center shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-6 text-center shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <p className="text-sm text-muted-foreground">
           Add your body profile in <Link to="/settings" className="text-accent hover:underline">Settings</Link> to unlock personalized recommendations.
         </p>
@@ -164,7 +164,7 @@ function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['sett
     )
   }
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Your body</p>
       <div className="flex flex-wrap gap-2">
         {[`${body.sex}`, `${body.ageYears} yrs`, `${body.heightCm} cm`, `${Math.round(body.bodyWeightKg * 10) / 10} ${unit}`, body.bodyFatPct != null && `${body.bodyFatPct}% fat`, body.activityLevel].filter(Boolean).map((v, i) => (
@@ -209,7 +209,7 @@ function TipsSection({ tips }: { tips: TipType[] }) {
   )
 
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tips</p>
         <button type="button" className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors" onClick={hideAll}>Hide</button>

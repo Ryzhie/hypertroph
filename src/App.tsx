@@ -20,24 +20,20 @@ const NAV_ITEMS = [
   { to: '/settings', label: 'Settings', Icon: Settings },
 ]
 
-/** Page transition animation variants */
-const pageVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -4 },
-}
-
 function AnimatedRoutes() {
   const location = useLocation()
+  const [first, setFirst] = useState(true)
+  // Skip initial animation after splash screen (only animate route changes)
+  useEffect(() => { if (first) setFirst(false) }, [first])
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        variants={pageVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        initial={first ? false : { opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{ duration: first ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
         style={{ flex: 1 }}
       >
         <Routes location={location}>
