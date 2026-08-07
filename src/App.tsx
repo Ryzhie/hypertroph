@@ -1,5 +1,6 @@
 import { Component, type ReactNode, useEffect, useState } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { registerSW } from 'virtual:pwa-register'
 import { seedIfNeeded } from './db/seed'
 import TodayScreen from './screens/TodayScreen'
@@ -10,56 +11,35 @@ import SplitsScreen from './screens/SplitsScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import { Home, BarChart3, Dumbbell, Calendar, Settings } from 'lucide-react'
 
-const TABS = [
-  { to: '/', label: 'Today', Icon: Home, end: true },
-  { to: '/history', label: 'History', Icon: BarChart3, end: false },
-  { to: '/exercises', label: 'Exercises', Icon: Dumbbell, end: false },
-  { to: '/plans', label: 'Plans', Icon: Calendar, end: false },
-  { to: '/settings', label: 'Settings', Icon: Settings, end: false },
+const NAV_ITEMS = [
+  { to: '/', label: 'Today', Icon: Home },
+  { to: '/history', label: 'History', Icon: BarChart3 },
+  { to: '/exercises', label: 'Exercises', Icon: Dumbbell },
+  { to: '/plans', label: 'Plans', Icon: Calendar },
+  { to: '/settings', label: 'Settings', Icon: Settings },
 ]
 
-export default function App() {
-  const [needsRefresh, setNeedsRefresh] = useState(false)
+/** Page transition animation variants */
+const pageVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -4 },
+}
 
-  // First run: populate the exercise catalog, preset splits, and settings.
-  useEffect(() => {
-    void seedIfNeeded()
-  }, [])
-
-  const updateSW = registerSW({
-    onNeedRefresh() {
-      setNeedsRefresh(true)
-    },
-    onOfflineReady() {},
-  })
-
-  // iOS is lazy about checking for service-worker updates; recheck whenever
-  // the app comes back into the foreground.
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') updateSW()
-    }
-    document.addEventListener('visibilitychange', onVisibility)
-    return () => document.removeEventListener('visibilitychange', onVisibility)
-  }, [updateSW])
-
+function AnimatedRoutes() {
+  const location = useLocation()
   return (
-    <div className="app-shell">
-      {needsRefresh && (
-        <div className="update-banner">
-          <span>New version ready</span>
-          <button
-            className="btn btn-primary"
-            style={{ padding: '6px 14px', fontSize: '0.9rem' }}
-            onClick={() => updateSW(true)}
-          >
-            Reload
-          </button>
-        </div>
-      )}
-
-      <ErrorBoundary>
-        <Routes>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        style={{ flex: 1 }}
+      >
+        <Routes location={location}>
           <Route path="/" element={<TodayScreen />} />
           <Route path="/log" element={<LoggingScreen />} />
           <Route path="/history" element={<HistoryScreen />} />
@@ -68,17 +48,34 @@ export default function App() {
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="*" element={<TodayScreen />} />
         </Routes>
-      </ErrorBoundary>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
 
+export default function App() {
+  const [needsRefresh, setNeedsRefresh] = useState(false)
+
+  useEffect(() => { void seedIfNeeded() }, [])
+
+  const updateSW = registerSW({
+    onNeedRefresh() { setNeedsRefresh(true) },
+    onOfflineReady() {},
+  })
+
+  useEffect(() => {
+    const onVis = () => { if (document.visibilityState === 'visible') updateSW() }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [updateSW])
+
+  return (
+    <div className="app-shell">
       {/* Mobile: bottom tab bar */}
       <nav className="nav-bottom">
-        {TABS.map((t) => (
-          <NavLink
-            key={t.to}
-            to={t.to}
-            end={t.end}
-            className={({ isActive }) => (isActive ? 'active' : '')}
-          >
+        {NAV_ITEMS.map((t) => (
+          <NavLink key={t.to} to={t.to} end={t.to === '/'}
+            className={({ isActive }) => (isActive ? 'active' : '')}>
             <span className="nav-icon"><t.Icon size={22} strokeWidth={2} /></span>
             <span>{t.label}</span>
           </NavLink>
@@ -88,18 +85,27 @@ export default function App() {
       {/* Desktop: side navigation */}
       <nav className="nav-side">
         <div className="nav-side-brand">OverLoad</div>
-        {TABS.map((t) => (
-          <NavLink
-            key={t.to}
-            to={t.to}
-            end={t.end}
-            className={({ isActive }) => (isActive ? 'active' : '')}
-          >
+        {NAV_ITEMS.map((t) => (
+          <NavLink key={t.to} to={t.to} end={t.to === '/'}
+            className={({ isActive }) => (isActive ? 'active' : '')}>
             <span className="nav-side-icon"><t.Icon size={20} strokeWidth={2} /></span>
             <span>{t.label}</span>
           </NavLink>
         ))}
       </nav>
+
+      {needsRefresh && (
+        <div className="update-banner">
+          <span>New version ready</span>
+          <button className="btn btn-primary" onClick={() => updateSW(true)}>
+            Reload
+          </button>
+        </div>
+      )}
+
+      <ErrorBoundary>
+        <AnimatedRoutes />
+      </ErrorBoundary>
     </div>
   )
 }
@@ -127,11 +133,8 @@ class ErrorBoundary extends Component<
                 {this.state.error.stack}
               </pre>
             </details>
-            <button
-              className="btn btn-primary"
-              style={{ marginTop: 12 }}
-              onClick={() => { this.setState({ error: null }); window.location.reload() }}
-            >
+            <button className="btn btn-primary" style={{ marginTop: 12 }}
+              onClick={() => { this.setState({ error: null }); window.location.reload() }}>
               Reload
             </button>
           </div>
