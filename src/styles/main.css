@@ -34,7 +34,7 @@
   gap: 8px;
   padding: 14px 16px;
   padding-top: calc(14px + env(safe-area-inset-top));
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  background: rgba(15, 18, 24, 0.88);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
@@ -54,7 +54,7 @@
   max-width: 560px;
   display: flex;
   justify-content: space-around;
-  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  background: rgba(23, 28, 36, 0.92);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 0.5px solid var(--border);
@@ -108,7 +108,7 @@
     top: 0;
     bottom: 0;
     width: 200px;
-    background: linear-gradient(180deg, var(--bg-elevated) 0%, color-mix(in srgb, var(--bg-elevated) 92%, black) 100%);
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, #111520 100%);
     border-right: 0.5px solid var(--border);
     padding: 24px 0;
     z-index: 20;
@@ -292,27 +292,27 @@
 }
 
 .chip-accent {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  color: var(--accent-strong);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.35);
 }
 
 .chip-good {
-  background: color-mix(in srgb, var(--good) 15%, transparent);
-  color: var(--good);
-  border-color: color-mix(in srgb, var(--good) 40%, transparent);
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.35);
 }
 
 .chip-warn {
-  background: color-mix(in srgb, var(--warn) 15%, transparent);
-  color: var(--warn);
-  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
 }
 
 .chip-danger {
-  background: color-mix(in srgb, var(--danger) 15%, transparent);
-  color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
 }
 
 /* Rows & lists */
@@ -625,7 +625,7 @@
 }
 
 .warn-card {
-  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  border-color: rgba(251, 191, 36, 0.4);
 }
 
 .exercise-card {
@@ -704,7 +704,7 @@
 .exercise-card-logging.open {
   border-color: var(--accent);
   cursor: default;
-  background: color-mix(in srgb, var(--bg-card) 95%, var(--accent) 5%);
+  background: #1d2230;
 }
 .exercise-card-logging .exercise-head {
   display: flex;
