@@ -8,6 +8,9 @@ import './styles/main.css'
 
 // Apply saved theme + font size BEFORE first render.
 // This runs synchronously so the CSS variables are set instantly.
+// Enable shadcn dark theme.
+document.documentElement.classList.add('dark')
+
 try {
   const themeName = localStorage.getItem('overload-theme')
   const fontSize = localStorage.getItem('overload-font-size')

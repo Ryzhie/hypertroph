@@ -8,14 +8,14 @@ import HistoryScreen from './screens/HistoryScreen'
 import ExercisesScreen from './screens/ExercisesScreen'
 import SplitsScreen from './screens/SplitsScreen'
 import SettingsScreen from './screens/SettingsScreen'
-import { HomeIcon, ChartIcon, DumbbellIcon, CalendarIcon, SettingsIcon } from './components/Icons'
+import { Home, BarChart3, Dumbbell, Calendar, Settings } from 'lucide-react'
 
 const TABS = [
-  { to: '/', label: 'Today', Icon: HomeIcon, end: true },
-  { to: '/history', label: 'History', Icon: ChartIcon, end: false },
-  { to: '/exercises', label: 'Exercises', Icon: DumbbellIcon, end: false },
-  { to: '/plans', label: 'Plans', Icon: CalendarIcon, end: false },
-  { to: '/settings', label: 'Settings', Icon: SettingsIcon, end: false },
+  { to: '/', label: 'Today', Icon: Home, end: true },
+  { to: '/history', label: 'History', Icon: BarChart3, end: false },
+  { to: '/exercises', label: 'Exercises', Icon: Dumbbell, end: false },
+  { to: '/plans', label: 'Plans', Icon: Calendar, end: false },
+  { to: '/settings', label: 'Settings', Icon: Settings, end: false },
 ]
 
 export default function App() {
@@ -79,7 +79,7 @@ export default function App() {
             end={t.end}
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
-            <span className="nav-icon"><t.Icon size={22} /></span>
+            <span className="nav-icon"><t.Icon size={22} strokeWidth={2} /></span>
             <span>{t.label}</span>
           </NavLink>
         ))}
@@ -95,7 +95,7 @@ export default function App() {
             end={t.end}
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
-            <span className="nav-side-icon"><t.Icon size={20} /></span>
+            <span className="nav-side-icon"><t.Icon size={20} strokeWidth={2} /></span>
             <span>{t.label}</span>
           </NavLink>
         ))}
