@@ -8,6 +8,7 @@ import { useSettings } from '../hooks/useSettings'
 import { db } from '../db/db'
 import { generateTips, type Tip as TipType } from '../services/tips'
 import { computeTopSet } from '../services/overload'
+import VolumeChart from '../components/VolumeChart'
 import {
   formatWeightNumber,
   formatRepRange,
@@ -64,6 +65,13 @@ export default function TodayScreen() {
       </header>
 
       {tips.length > 0 && <TipsSection tips={tips} />}
+
+      {sessions.length > 0 && (
+        <div className="card">
+          <div className="card-title">Training volume · 30 days</div>
+          <VolumeChart sessions={sessions} unit={plan.targetWeightUnit} />
+        </div>
+      )}
 
       {plan.isRestDay ? (
         <>

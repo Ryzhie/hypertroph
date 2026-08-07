@@ -848,6 +848,23 @@
   border-top-color: var(--border-strong);
 }
 
+/* ---- Charts ---- */
+.volume-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 8px 0;
+}
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.chart-label {
+  fill: var(--text-faint);
+  font-size: 9px;
+  font-family: var(--mono);
+}
+
 /* ---- Muscle-map body ---- */
 .bodymap {
   display: flex;
