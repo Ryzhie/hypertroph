@@ -970,6 +970,28 @@
   font-family: var(--mono);
 }
 
+/* ---- Streak chart ---- */
+.streak-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.streak-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.streak-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.streak-stat strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 /* ---- Muscle-map body ---- */
 .bodymap {
   display: flex;

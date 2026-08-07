@@ -121,6 +121,15 @@ export default function SplitsScreen() {
     await update({ splitId: copy.id })
   }
 
+  async function deleteSplit(s: Split) {
+    await db.splits.delete(s.id)
+    // Switch to the first remaining split.
+    const remaining = splits.filter((x) => x.id !== s.id)
+    if (remaining.length > 0) {
+      await update({ splitId: remaining[0].id })
+    }
+  }
+
   async function renameDay(dayKey: string, name: string) {
     await patchDay(split, dayKey, { name })
   }
@@ -184,10 +193,19 @@ export default function SplitsScreen() {
           type="button"
           className="btn-ghost btn"
           onClick={() => void duplicate(split)}
-          style={{ marginLeft: 'auto' }}
         >
           + Copy
         </button>
+        {splits.length > 1 && (
+          <button
+            type="button"
+            className="btn-ghost btn"
+            style={{ color: 'var(--danger)' }}
+            onClick={() => { if (confirm(`Delete "${split.name}"?`)) void deleteSplit(split) }}
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       {split.schedule.map((dayKey, wi) => {
