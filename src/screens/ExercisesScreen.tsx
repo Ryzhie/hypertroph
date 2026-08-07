@@ -162,19 +162,6 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
   const [repsMin, setRepsMin] = useState(exercise.defaultRepsRange[0])
   const [repsMax, setRepsMax] = useState(exercise.defaultRepsRange[1])
   const [rest, setRest] = useState(exercise.defaultRestSeconds)
-  const [groups, setGroups] = useState<MuscleGroup[]>(exercise.muscleGroups)
-
-  // Re-sync when exercise changes (e.g. re-expands after DB update).
-  useState(() => {
-    setName(exercise.name)
-    setEquipment(exercise.equipment ?? '')
-    setCategory(exercise.category)
-    setSets(exercise.defaultSets)
-    setRepsMin(exercise.defaultRepsRange[0])
-    setRepsMax(exercise.defaultRepsRange[1])
-    setRest(exercise.defaultRestSeconds)
-    setGroups(exercise.muscleGroups)
-  })
 
   async function save() {
     await db.exercises.update(exercise.id, {
@@ -184,7 +171,6 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
       defaultSets: sets,
       defaultRepsRange: [repsMin, repsMax],
       defaultRestSeconds: rest,
-      muscleGroups: groups,
     })
     setEditing(false)
   }
