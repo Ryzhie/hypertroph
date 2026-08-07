@@ -1,22 +1,20 @@
 import { Fragment } from 'react'
 import type { MuscleGroup } from '../types/exercise'
-import { BODY_DECO, BODY_REGIONS, regionsFor, regionById, type BodyRegion } from '../data/body'
+import { BODY_DECO, BODY_OUTLINE, BODY_REGIONS, regionsFor, type BodyRegion } from '../data/body'
 
 const VIEW_W = 240
-const VIEW_H = 440
-/** Mirror the authoring (left-half) region around the vertical center. */
+const VIEW_H = 420
 const MIRROR = `translate(${VIEW_W} 0) scale(-1 1)`
 
 interface BodyMapProps {
-  /** Muscle groups to light up. Empty = plain figure. */
   active?: MuscleGroup[]
   view?: 'front' | 'back' | 'both'
   className?: string
 }
 
 /**
- * Front/back anatomical muscle map. Authoring is left-half-only; every region
- * is mirrored to the right side so the figure is symmetric by construction.
+ * Anatomical muscle map with body silhouette outline for context.
+ * Regions are authored left-half and mirrored for symmetry.
  */
 export default function BodyMap({ active, view = 'both', className }: BodyMapProps) {
   const lit = regionsFor(active)
@@ -34,9 +32,15 @@ export default function BodyMap({ active, view = 'both', className }: BodyMapPro
         role="img"
         aria-label={`${v} view${lit.size > 0 ? ' — highlighted muscles' : ''}`}
       >
+        {/* Body silhouette outline — gives context to the muscle regions */}
+        <path d={BODY_OUTLINE} className="body-silhouette" />
+
+        {/* Decorative elements (head, neck) */}
         {deco.map((id) => (
           <use key={id} href={`#${id}`} className="body-deco" />
         ))}
+
+        {/* Muscle regions — left + mirrored right */}
         {regions.map((r) => {
           const cls = lit.has(r.id) ? 'body-region on' : 'body-region'
           if (r.centered) {
@@ -60,10 +64,8 @@ export default function BodyMap({ active, view = 'both', className }: BodyMapPro
           {BODY_REGIONS.map((r) => (
             <path key={r.id} id={r.id} d={r.d} />
           ))}
-          {(() => {
-            const foot = regionById('foot')
-            return foot ? <path id="foot" d={foot.d} /> : null
-          })()}
+          {/* Head path for deco rendering */}
+          <path id="head" d="M120 8 a18 22 0 1 0 0.01 0 Z" />
         </defs>
       </svg>
       {figures.map(figure)}

@@ -1036,8 +1036,9 @@
 /* ---- Muscle-map body ---- */
 .bodymap {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
+  padding: 8px 0;
 }
 .bodymap-figure {
   width: 100%;
@@ -1049,20 +1050,27 @@
 .bodymap-figure:only-child {
   max-width: 58%;
 }
+.body-silhouette {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.5;
+}
 .body-region {
   fill: var(--body-idle);
   stroke: var(--bg-elevated);
-  stroke-width: 1.5;
-  transition: fill 0.2s ease;
+  stroke-width: 1;
+  transition: fill 0.25s ease, stroke 0.25s ease;
 }
 .body-region.on {
   fill: var(--accent);
   stroke: var(--accent-strong);
+  stroke-width: 1.5;
 }
 .body-deco {
   fill: var(--bg-input);
   stroke: var(--bg-elevated);
-  stroke-width: 1.5;
+  stroke-width: 1;
 }
 
 /* ---- Exercises catalog screen ---- */

@@ -1,11 +1,5 @@
 import type { MuscleGroup } from '../types/exercise'
 
-/**
- * Muscle-map regions for the front/back body SVG.
- * Redesigned with smoother, more anatomical curves.
- * Each region is authored on the LEFT half (viewBox 200×420) and
- * mirrored to the right by the BodyMap component.
- */
 export interface BodyRegion {
   id: string
   view: 'front' | 'back' | 'both'
@@ -14,91 +8,141 @@ export interface BodyRegion {
   centered?: boolean
 }
 
-const CX = 100 // center x
+/*
+ * Body regions with smooth, organic curves.
+ * All authored on the LEFT half of a 240×400 viewBox and mirrored.
+ * The figure is a stylized athletic body — wider shoulders, tapered waist,
+ * proportional limbs. Smooth bezier curves throughout.
+ */
+const CX = 120 // center line
 
 export const BODY_REGIONS: BodyRegion[] = [
-  // --- decorative ---
-  { id: 'head', view: 'front', d: `M${CX} 4 a16 19 0 1 0 0.01 0 Z`, deco: true },
+  // --- decorative: head + neck ---
+  { id: 'head', view: 'front', d: `M${CX} 8 a18 22 0 1 0 0.01 0 Z`, deco: true },
+  { id: 'neck', view: 'front', d: `M${CX-8} 30 L${CX+8} 30 L${CX+8} 44 L${CX-8} 44 Z`, deco: true },
 
-  // --- front: torso ---
+  // --- FRONT muscle regions ---
+  // Chest (pectorals) — fan shape from shoulder to sternum
   {
     id: 'chest',
     view: 'front',
-    d: `M${CX - 32} 72 C${CX - 18} 66 ${CX - 6} 70 ${CX - 2} 82 L${CX - 4} 140 C${CX - 10} 150 ${CX - 28} 146 ${CX - 32} 136 C${CX - 34} 110 ${CX - 34} 88 ${CX - 32} 72 Z`,
+    d: `M${CX-40} 62 C${CX-30} 54 ${CX-12} 58 ${CX-4} 72
+        L${CX-6} 130 C${CX-12} 136 ${CX-32} 132 ${CX-38} 122
+        C${CX-42} 108 ${CX-42} 80 ${CX-40} 62 Z`,
   },
+  // Deltoids (front) — rounded shoulder cap
   {
     id: 'delt',
     view: 'front',
-    d: `M${CX - 38} 74 C${CX - 44} 62 ${CX - 32} 52 ${CX - 20} 58 C${CX - 14} 60 ${CX - 10} 68 ${CX - 12} 78 C${CX - 22} 84 ${CX - 34} 82 ${CX - 38} 74 Z`,
+    d: `M${CX-48} 56 C${CX-54} 44 ${CX-42} 34 ${CX-32} 38
+        C${CX-24} 40 ${CX-20} 50 ${CX-22} 60
+        C${CX-30} 68 ${CX-44} 66 ${CX-48} 56 Z`,
   },
+  // Biceps — elongated oval on upper arm
   {
     id: 'biceps',
     view: 'front',
-    d: `M${CX - 18} 86 C${CX - 24} 94 ${CX - 26} 112 ${CX - 24} 128 L${CX - 16} 130 C${CX - 16} 114 ${CX - 14} 98 ${CX - 8} 88 Z`,
+    d: `M${CX-26} 72 C${CX-32} 82 ${CX-34} 104 ${CX-32} 122
+        L${CX-24} 124 C${CX-24} 104 ${CX-22} 86 ${CX-16} 74 Z`,
   },
+  // Abs (centered) — segmented rectangle
   {
     id: 'abs',
     view: 'front',
     centered: true,
-    d: `M${CX - 16} 140 C${CX - 12} 138 ${CX + 12} 138 ${CX + 16} 140 L${CX + 14} 200 L${CX - 14} 200 Z`,
+    d: `M${CX-18} 128 C${CX-14} 126 ${CX+14} 126 ${CX+18} 128
+        L${CX+16} 196 L${CX-16} 196 Z`,
   },
 
-  // --- back ---
+  // --- BACK muscle regions ---
+  // Traps — diamond shape across upper back
   {
     id: 'traps',
     view: 'back',
     centered: true,
-    d: `M${CX - 34} 64 C${CX - 16} 54 ${CX + 16} 54 ${CX + 34} 64 L${CX + 32} 82 C${CX + 16} 74 ${CX - 16} 74 ${CX - 32} 82 Z`,
+    d: `M${CX-38} 48 C${CX-22} 38 ${CX+22} 38 ${CX+38} 48
+        L${CX+36} 70 C${CX+20} 62 ${CX-20} 62 ${CX-36} 70 Z`,
   },
+  // Lats — wide V-shape
   {
     id: 'lat',
     view: 'back',
-    d: `M${CX - 30} 100 C${CX - 34} 130 ${CX - 32} 168 ${CX - 26} 194 L${CX - 14} 188 C${CX - 18} 160 ${CX - 16} 126 ${CX - 12} 100 Z`,
+    d: `M${CX-34} 88 C${CX-38} 118 ${CX-36} 162 ${CX-28} 186
+        L${CX-16} 180 C${CX-20} 152 ${CX-18} 118 ${CX-14} 90 Z`,
   },
+  // Triceps — horseshoe on back of upper arm
   {
     id: 'triceps',
     view: 'back',
-    d: `M${CX - 16} 86 C${CX - 26} 94 ${CX - 30} 114 ${CX - 28} 130 L${CX - 18} 132 C${CX - 18} 114 ${CX - 12} 96 ${CX - 6} 88 Z`,
+    d: `M${CX-24} 72 C${CX-34} 82 ${CX-38} 104 ${CX-36} 122
+        L${CX-26} 124 C${CX-26} 104 ${CX-22} 84 ${CX-16} 74 Z`,
   },
+  // Glutes — rounded
   {
     id: 'glute',
     view: 'back',
-    d: `M${CX - 22} 186 C${CX - 28} 204 ${CX - 26} 222 ${CX - 20} 234 L${CX - 4} 230 C${CX - 6} 218 ${CX - 6} 200 ${CX - 2} 186 Z`,
+    d: `M${CX-28} 176 C${CX-34} 194 ${CX-32} 216 ${CX-26} 228
+        L${CX-8} 224 C${CX-10} 210 ${CX-10} 190 ${CX-6} 176 Z`,
   },
+  // Hamstrings — back of thigh
   {
     id: 'ham',
     view: 'back',
-    d: `M${CX - 20} 230 C${CX - 26} 256 ${CX - 26} 280 ${CX - 22} 302 L${CX - 10} 298 C${CX - 12} 274 ${CX - 10} 250 ${CX - 4} 230 Z`,
+    d: `M${CX-26} 226 C${CX-32} 256 ${CX-32} 288 ${CX-28} 314
+        L${CX-14} 310 C${CX-16} 282 ${CX-14} 252 ${CX-8} 226 Z`,
   },
 
-  // --- both sides ---
+  // --- BOTH SIDES ---
+  // Forearms
   {
     id: 'forearm',
     view: 'both',
-    d: `M${CX - 26} 132 C${CX - 30} 150 ${CX - 34} 172 ${CX - 30} 192 L${CX - 22} 188 C${CX - 22} 168 ${CX - 18} 148 ${CX - 14} 132 Z`,
+    d: `M${CX-36} 126 C${CX-42} 148 ${CX-44} 176 ${CX-40} 198
+        L${CX-30} 194 C${CX-30} 170 ${CX-28} 148 ${CX-22} 128 Z`,
   },
+  // Quads (front thigh)
   {
     id: 'quad',
     view: 'front',
-    d: `M${CX - 22} 198 C${CX - 28} 226 ${CX - 30} 254 ${CX - 26} 282 L${CX - 10} 278 C${CX - 12} 250 ${CX - 12} 222 ${CX - 6} 198 Z`,
+    d: `M${CX-24} 192 C${CX-32} 222 ${CX-34} 258 ${CX-30} 290
+        L${CX-14} 286 C${CX-16} 254 ${CX-16} 222 ${CX-10} 192 Z`,
   },
+  // Calves
   {
     id: 'calf',
     view: 'both',
-    d: `M${CX - 24} 290 C${CX - 28} 314 ${CX - 26} 340 ${CX - 22} 358 L${CX - 10} 354 C${CX - 12} 332 ${CX - 10} 308 ${CX - 4} 290 Z`,
+    d: `M${CX-28} 318 C${CX-34} 344 ${CX-32} 372 ${CX-28} 388
+        L${CX-16} 384 C${CX-18} 364 ${CX-16} 336 ${CX-12} 318 Z`,
   },
 ]
 
-/** Decorative pieces for each view. */
 export const BODY_DECO: Record<'front' | 'back', string[]> = {
-  front: ['head'],
+  front: ['head', 'neck'],
   back: ['head'],
 }
 
-// Foot path (decorative).
-const FOOT_PATH = `M${CX - 22} 364 L${CX - 8} 362 L${CX - 6} 374 L${CX - 24} 376 Z`
+/** Full body silhouette outline (thin stroke, no fill) — gives context to the muscle regions. */
+export const BODY_OUTLINE = `M${CX} 8
+  a18 22 0 1 0 0.01 0 Z
+  M${CX-8} 30 C${CX-10} 36 ${CX-12} 40 ${CX-14} 44
+  C${CX-36} 50 ${CX-50} 42 ${CX-54} 56
+  C${CX-56} 68 ${CX-48} 80 ${CX-42} 92
+  C${CX-44} 112 ${CX-44} 140 ${CX-40} 160
+  C${CX-42} 176 ${CX-44} 196 ${CX-40} 206
+  C${CX-44} 228 ${CX-38} 260 ${CX-32} 290
+  C${CX-34} 320 ${CX-32} 350 ${CX-28} 380
+  C${CX-26} 388 ${CX-24} 392 ${CX-16} 392
+  C${CX-10} 392 ${CX+10} 392 ${CX+16} 392
+  C${CX+24} 392 ${CX+26} 388 ${CX+28} 380
+  C${CX+32} 350 ${CX+34} 320 ${CX+32} 290
+  C${CX+38} 260 ${CX+44} 228 ${CX+40} 206
+  C${CX+42} 196 ${CX+44} 176 ${CX+42} 160
+  C${CX+44} 140 ${CX+44} 112 ${CX+42} 92
+  C${CX+48} 80 ${CX+56} 68 ${CX+54} 56
+  C${CX+50} 42 ${CX+36} 50 ${CX+14} 44
+  C${CX+12} 40 ${CX+10} 36 ${CX+8} 30
+  C${CX+4} 34 ${CX-4} 34 ${CX-8} 30 Z`
 
-/** Muscle group → region id(s) to highlight. `full` lights up everything. */
 export const MUSCLE_REGIONS: Record<MuscleGroup, string[]> = {
   chest: ['chest'],
   back: ['traps', 'lat'],
@@ -114,14 +158,12 @@ export const MUSCLE_REGIONS: Record<MuscleGroup, string[]> = {
   full: ['chest', 'delt', 'biceps', 'forearm', 'abs', 'traps', 'lat', 'triceps', 'glute', 'ham', 'quad', 'calf'],
 }
 
-/** Reverse lookup: region id → owning muscle group. */
 export const REGION_GROUP: Record<string, MuscleGroup> = Object.fromEntries(
   (Object.entries(MUSCLE_REGIONS) as [MuscleGroup, string[]][]).flatMap(([group, ids]) =>
     ids.map((id) => [id, group]),
   ),
 )
 
-/** Resolve a set of active muscle groups to the region ids to light up. */
 export function regionsFor(groups: MuscleGroup[] | undefined): Set<string> {
   const active = new Set(groups ?? [])
   if (active.has('full')) return new Set(MUSCLE_REGIONS.full)
@@ -130,13 +172,6 @@ export function regionsFor(groups: MuscleGroup[] | undefined): Set<string> {
   return ids
 }
 
-/** Get the region definition by id. */
-export function regionById(id: string): BodyRegion | undefined {
-  if (id === 'foot') return { id: 'foot', view: 'both', d: FOOT_PATH, deco: true }
-  return BODY_REGIONS.find((r) => r.id === id)
-}
-
-/** Per-muscle-group info: exercises, tips, common mistakes. */
 export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string; cue: string }> = {
   chest: {
     exercises: ['Barbell Bench Press', 'Incline Press', 'Dumbbell Bench Press', 'Cable Fly', 'Push-Up'],
@@ -155,7 +190,7 @@ export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string
   },
   biceps: {
     exercises: ['Barbell Curl', 'Dumbbell Curl', 'Hammer Curl', 'Cable Curl'],
-    tip: 'Control the eccentric (lowering) — that\'s where growth happens.',
+    tip: 'Control the eccentric (lowering) — that is where growth happens.',
     cue: 'Squeeze at the top for a 1-second peak contraction.',
   },
   triceps: {
@@ -164,7 +199,7 @@ export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string
     cue: 'Straighten the arm fully at the bottom for peak contraction.',
   },
   forearms: {
-    exercises: ['Hammer Curl', 'Wrist Curl', 'Farmer\'s Walk'],
+    exercises: ['Hammer Curl', 'Wrist Curl', "Farmer's Walk"],
     tip: 'Forearm volume correlates with grip strength and deadlift progress.',
     cue: 'Squeeze the bar as hard as you can during every rep.',
   },
@@ -176,12 +211,12 @@ export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string
   glutes: {
     exercises: ['Hip Thrust', 'Romanian Deadlift', 'Walking Lunge', 'Deadlift'],
     tip: 'Hip thrusts are the most direct glute builder; full lockout matters.',
-    cue: 'Squeeze your glutes at the top like you\'re cracking a walnut.',
+    cue: 'Squeeze your glutes at the top like you are cracking a walnut.',
   },
   calves: {
     exercises: ['Standing Calf Raise', 'Seated Calf Raise', 'Leg Press Calf'],
     tip: 'Full stretch at the bottom, peak contraction at the top.',
-    cue: 'Slow 2-second eccentric; don\'t bounce.',
+    cue: 'Slow 2-second eccentric; do not bounce.',
   },
   core: {
     exercises: ['Hanging Leg Raise', 'Cable Crunch', 'Ab Wheel', 'Plank'],
