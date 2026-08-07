@@ -3,6 +3,7 @@ import Tip, { GLOSSARY } from '../components/Tip'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { useSessions } from '../hooks/useSessions'
+import { deleteSession } from '../services/sessions'
 import { useProgress } from '../hooks/useProgress'
 import { useSettings } from '../hooks/useSettings'
 import { computeTopSet } from '../services/overload'
@@ -86,8 +87,19 @@ function SessionCard({
   defaultOpen: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const volume = toDisplayWeight(sessionVolume(session), unit)
   const logged = session.logs.filter((l) => l.sets.length > 0)
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await deleteSession(session.id)
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div className="card session-card">
@@ -142,6 +154,24 @@ function SessionCard({
         <span className="mono">
           {fmtNum(volume)} {unit}·r
         </span>
+        {open && (
+          <span style={{ marginLeft: 'auto' }}>
+            {confirmDelete ? (
+              <>
+                <button className="btn-ghost btn" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => void handleDelete()} disabled={deleting}>
+                  {deleting ? 'Deleting…' : 'Confirm'}
+                </button>
+                <button className="btn-ghost btn" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => setConfirmDelete(false)}>
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button className="btn-ghost btn" style={{ padding: '4px 8px', fontSize: '0.8rem', color: 'var(--danger)' }} onClick={() => setConfirmDelete(true)}>
+                Delete
+              </button>
+            )}
+          </span>
+        )}
       </div>
     </div>
   )
