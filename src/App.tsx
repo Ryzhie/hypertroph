@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Component, type ReactNode, useEffect, useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
 import { seedIfNeeded } from './db/seed'
@@ -57,15 +57,17 @@ export default function App() {
         </div>
       )}
 
-      <Routes>
-        <Route path="/" element={<TodayScreen />} />
-        <Route path="/log" element={<LoggingScreen />} />
-        <Route path="/history" element={<HistoryScreen />} />
-        <Route path="/exercises" element={<ExercisesScreen />} />
-        <Route path="/plans" element={<SplitsScreen />} />
-        <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="*" element={<TodayScreen />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<TodayScreen />} />
+          <Route path="/log" element={<LoggingScreen />} />
+          <Route path="/history" element={<HistoryScreen />} />
+          <Route path="/exercises" element={<ExercisesScreen />} />
+          <Route path="/plans" element={<SplitsScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="*" element={<TodayScreen />} />
+        </Routes>
+      </ErrorBoundary>
 
       <nav className="nav-bottom">
         {TABS.map((t) => (
@@ -82,4 +84,34 @@ export default function App() {
       </nav>
     </div>
   )
+}
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="screen">
+          <div className="empty">
+            <div className="empty-icon">⚠️</div>
+            <h3>Something went wrong</h3>
+            <p className="muted">{this.state.error.message}</p>
+            <button
+              className="btn btn-primary"
+              onClick={() => { this.setState({ error: null }); window.location.reload() }}
+            >
+              Reload
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }

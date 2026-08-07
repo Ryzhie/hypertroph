@@ -24,8 +24,16 @@ class HyperTrophDB extends Dexie {
 
   constructor() {
     super('hypertroph')
-    // v2: Exercise.perHand / body profile are optional fields (no migration),
-    // plus a new aiInsights table for external-AI analysis rounds.
+    // v1: original M1 schema. Must be kept so Dexie can migrate existing DBs.
+    this.version(1).stores({
+      exercises: 'id, name, archived',
+      splits: 'id, name',
+      sessions: 'id, dateKey, splitId, status',
+      progress: 'exerciseId',
+      settings: 'id',
+    })
+    // v2: adds aiInsights table; Exercise.perHand / body profile are
+    // optional fields that don't require a migration callback.
     this.version(SCHEMA_VERSION).stores({
       exercises: 'id, name, archived',
       splits: 'id, name',
