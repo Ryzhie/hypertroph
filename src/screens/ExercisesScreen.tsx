@@ -151,11 +151,22 @@ function ExerciseCard({
           <span className="exercise-name">{exercise.name}</span>
           <span className="faint small">
             {exercise.equipment ?? '—'} · {exercise.category} ·{' '}
-            {exercise.isBodyweight
-              ? `${exercise.defaultRepsRange[0]}–${exercise.defaultRepsRange[1]} reps`
-              : `${exercise.defaultSets}×${exercise.defaultRepsRange[0]}–${exercise.defaultRepsRange[1]}`}
+            {exercise.tracksDuration
+              ? `${exercise.defaultDuration ?? 30} min`
+              : exercise.isBodyweight
+                ? `${exercise.defaultRepsRange[0]}–${exercise.defaultRepsRange[1]} reps`
+                : `${exercise.defaultSets}×${exercise.defaultRepsRange[0]}–${exercise.defaultRepsRange[1]}`}
             {exercise.perHand ? ' · per hand' : ''}
           </span>
+          {exercise.tags && exercise.tags.length > 0 && (
+            <div className="exercise-tags">
+              {exercise.tags.map((tag) => (
+                <span key={tag} className={`tag tag-${sectionTagColor(tag, exercise.section ?? 'weights')}`}>
+                  {formatTag(tag)}
+                </span>
+              ))}
+            </div>
+          )}
         </span>
         <span className="chevron" aria-hidden>
           {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
@@ -365,21 +376,44 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
         <input value={f.name} onChange={(e) => set({ name: e.target.value })} placeholder="e.g. Nordic Curl" />
       </label>
 
-      <label className="field">
-        <span className="field-label">Muscles trained</span>
-        <div className="filter-chips">
-          {MUSCLE_ORDER.map((g) => (
-            <FilterChip
-              key={g}
-              label={MUSCLE_GROUP_LABELS[g]}
-              active={f.muscleGroups.includes(g)}
-              onClick={() => toggleGroup(g)}
-            />
-          ))}
+      {f.section === 'sport' ? (
+        <>
+          <div className="field-row">
+            <label className="field">
+              <span className="field-label">Activity type</span>
+              <select value={f.muscleGroups[0] || 'sport'} onChange={(e) => set({ muscleGroups: [e.target.value as MuscleGroup] })}>
+                <option value="sport">General Sport</option>
+                <option value="cardio">Endurance</option>
+                <option value="full">Full Body</option>
+              </select>
+            </label>
+            <label className="field">
+              <span className="field-label">Default duration (min)</span>
+              <input type="number" min={1} value={f.rest} onChange={(e) => set({ rest: Number(e.target.value) })} />
+            </label>
+          </div>
+          <label className="field">
+            <span className="field-label">Notes (e.g. technique practiced)</span>
+            <input value={f.equipment} onChange={(e) => set({ equipment: e.target.value })} placeholder="e.g. freestyle, singles match, drills" />
+          </label>
+        </>
+      ) : (
+        <label className="field">
+          <span className="field-label">Muscles trained</span>
+          <div className="filter-chips">
+            {MUSCLE_ORDER.map((g) => (
+              <FilterChip
+                key={g}
+                label={MUSCLE_GROUP_LABELS[g]}
+                active={f.muscleGroups.includes(g)}
+                onClick={() => toggleGroup(g)}
+              />
+            ))}
         </div>
       </label>
+      )}
 
-      <div className="field-row">
+      {f.section !== 'sport' && (<div className="field-row">
         <label className="field">
           <span className="field-label">Equipment</span>
           <select value={f.equipment} onChange={(e) => set({ equipment: e.target.value })}>
@@ -398,7 +432,7 @@ function AddExerciseForm({ onDone, section }: { onDone: () => void; section: Exe
             <option value="isolation">Isolation</option>
           </select>
         </label>
-      </div>
+      </div>)}
 
       <div className="field-row">
         {f.section === 'sport' || f.section === 'cardio' ? (
@@ -505,6 +539,23 @@ function formatRest(seconds: number): string {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return s === 0 ? `${m}m` : `${m}:${String(s).padStart(2, '0')}`
+}
+
+/** Map tag names to display-friendly labels. */
+function formatTag(tag: string): string {
+  return tag.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+/** Map cardio tags to intensity color classes. */
+function sectionTagColor(tag: string, section: string): string {
+  if (section === 'cardio') {
+    if (['max', 'HIIT'].includes(tag)) return 'danger'
+    if (['high', 'power'].includes(tag)) return 'warn'
+    if (['moderate'].includes(tag)) return 'accent'
+    if (['light', 'low-impact', 'endurance'].includes(tag)) return 'good'
+  }
+  if (section === 'sport') return 'info'
+  return 'accent'
 }
 
 function slugify(name: string): string {
