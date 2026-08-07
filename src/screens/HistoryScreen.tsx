@@ -150,7 +150,8 @@ function SessionCard({
 
 function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: WeightUnit }) {
   const { progress } = useProgress()
-  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
+  const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
+  const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
 
   // Exercises that actually have carried overload state.
   const withProgress = exercises.filter((e) => progress[e.id])

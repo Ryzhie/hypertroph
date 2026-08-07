@@ -9,8 +9,18 @@ const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export default function SplitsScreen() {
   const { settings, update } = useSettings()
-  const splits = useLiveQuery(() => db.splits.toArray(), []) ?? []
-  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
+  const splitsRaw = useLiveQuery(() => db.splits.toArray(), [])
+  const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
+
+  // Guard: useLiveQuery can return unexpected values during DB migration.
+  const splits = Array.isArray(splitsRaw) ? splitsRaw : []
+  const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
+
+  // Still loading from Dexie — show nothing rather than flash.
+  if (splitsRaw === undefined || exercisesRaw === undefined) {
+    return <div className="screen splits-screen" />
+  }
+
   const activeId = settings?.splitId
 
   const [editing, setEditing] = useState<string | null>(null) // dayKey
@@ -18,11 +28,6 @@ export default function SplitsScreen() {
   const [query, setQuery] = useState('')
 
   const split = splits.find((s) => s.id === activeId) ?? splits[0]
-  // Data still loading from Dexie — render nothing until ready to avoid the
-  // "No split yet" flash on mount (settings loaded after split data).
-  if (!settings && splits.length === 0) {
-    return <div className="screen splits-screen" />
-  }
   if (!split) {
     return (
       <div className="screen">

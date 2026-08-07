@@ -92,6 +92,7 @@ class ErrorBoundary extends Component<
 > {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) {
+    console.error('[HyperTroph ErrorBoundary]', error)
     return { error }
   }
   render() {
@@ -101,9 +102,16 @@ class ErrorBoundary extends Component<
           <div className="empty">
             <div className="empty-icon">⚠️</div>
             <h3>Something went wrong</h3>
-            <p className="muted">{this.state.error.message}</p>
+            <p className="muted small">{this.state.error.message}</p>
+            <details style={{ textAlign: 'left', marginTop: 12, fontSize: '0.8rem' }}>
+              <summary className="muted">Technical details</summary>
+              <pre style={{ whiteSpace: 'pre-wrap', color: 'var(--text-faint)' }}>
+                {this.state.error.stack}
+              </pre>
+            </details>
             <button
               className="btn btn-primary"
+              style={{ marginTop: 12 }}
               onClick={() => { this.setState({ error: null }); window.location.reload() }}
             >
               Reload

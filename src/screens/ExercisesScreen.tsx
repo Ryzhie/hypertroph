@@ -15,9 +15,15 @@ const MUSCLE_ORDER = Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroup[]
 const EQUIPMENT_OPTIONS = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight', 'Other']
 
 export default function ExercisesScreen() {
-  const exercises = useLiveQuery(() => db.exercises.orderBy('name').toArray(), []) ?? []
+  const raw = useLiveQuery(() => db.exercises.orderBy('name').toArray(), [])
+  const exercises = Array.isArray(raw) ? raw : []
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
+
+  // Loading from Dexie — don't render until data is ready.
+  if (raw === undefined) {
+    return <div className="screen exercises-screen" />
+  }
   const [expanded, setExpanded] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
 

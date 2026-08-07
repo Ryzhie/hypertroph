@@ -323,8 +323,10 @@ function AiAnalysisSection() {
   const { settings } = useSettings()
   const { progress } = useProgress()
   const { sessions } = useSessions()
-  const exercises = useLiveQuery(() => db.exercises.toArray(), []) ?? []
-  const insights = useLiveQuery(() => db.aiInsights.orderBy('createdAt').reverse().toArray(), []) ?? []
+  const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
+  const insightsRaw = useLiveQuery(() => db.aiInsights.orderBy('createdAt').reverse().toArray(), [])
+  const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
+  const insights = Array.isArray(insightsRaw) ? insightsRaw : []
 
   const [prompt, setPrompt] = useState<string | null>(null)
   const [pasted, setPasted] = useState('')
