@@ -11,17 +11,15 @@ import { generateTips, type Tip as TipType } from '../services/tips'
 import { computeTopSet } from '../services/overload'
 import VolumeChart from '../components/VolumeChart'
 import StreakChart from '../components/StreakChart'
-import {
-  formatWeightNumber,
-  formatRepRange,
-  formatRestSeconds,
-  perHandSuffix,
-  toDisplayWeight,
-} from '../utils/format'
+import { formatWeightNumber, formatRepRange, formatRestSeconds, perHandSuffix } from '../utils/format'
 import Tip, { GLOSSARY } from '../components/Tip'
 import { addDaysToKey, formatDateKey, weekdayIndex } from '../utils/date'
 import { defaultParams } from '../algorithm/params'
 import type { Instruction } from '../algorithm/progression'
+
+// Animation helpers
+const staggerContainer = { animate: { transition: { staggerChildren: 0.06 } } }
+const staggerItem = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
 
 export default function TodayScreen() {
   const plan = useTodayPlan()
@@ -32,133 +30,107 @@ export default function TodayScreen() {
   const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
   const params = settings?.params ?? defaultParams()
   const tips = useMemo(
-    () =>
-      generateTips({
-        body: settings?.body,
-        progress,
-        sessions,
-        exercises,
-        params,
-        today: plan.today,
-      }),
+    () => generateTips({ body: settings?.body, progress, sessions, exercises, params, today: plan.today }),
     [settings?.body, progress, sessions, exercises, params, plan.today],
   )
   const unit = plan.targetWeightUnit
-
   const lastSession = sessions[0]
-  const warned = plan.entries.some(
-    (e) => e.target.mode === 'deload' || e.target.mode === 'deload-suggested',
-  )
+  const warned = plan.entries.some((e) => e.target.mode === 'deload' || e.target.mode === 'deload-suggested')
 
   return (
-    <div className="screen today-screen">
-      <header className="today-header">
-        <div>
-          <div className="faint small">
-            {formatDateKey(plan.today)} · {plan.splitName ?? '—'}
-          </div>
-          <h2 className="topbar-title" style={{ marginBottom: 0 }}>
-            {plan.isRestDay ? 'Rest day' : plan.dayName}
-          </h2>
-        </div>
-      </header>
+    <div className="space-y-5 p-4 md:p-8 max-w-4xl mx-auto">
+      {/* Hero header */}
+      <motion.header initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+        <p className="text-sm text-muted-foreground mb-1">{formatDateKey(plan.today)} · {plan.splitName}</p>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent">
+          {plan.isRestDay ? 'Rest day' : plan.dayName}
+        </h1>
+      </motion.header>
 
+      {/* Tips */}
       {tips.length > 0 && <TipsSection tips={tips} />}
 
+      {/* Streak + Volume charts — two columns on desktop */}
       {sessions.length > 0 && (
-        <>
-          <div className="card">
-            <div className="card-title">Training streak · 14 days</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Streak · 14 days</p>
             <StreakChart sessions={sessions} />
-          </div>
-          <div className="card">
-            <div className="card-title">Training volume · 30 days</div>
-            <VolumeChart sessions={sessions} unit={plan.targetWeightUnit} />
-          </div>
-        </>
+          </motion.div>
+          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Volume · 30 days</p>
+            <VolumeChart sessions={sessions} unit={unit} />
+          </motion.div>
+        </div>
       )}
 
+      {/* Workout or Rest */}
       {plan.isRestDay ? (
-        <>
+        <div className="space-y-4">
           <RestDay plan={plan} />
           <BodyCard settings={settings} />
-        </>
+        </div>
       ) : (
-        <>
+        <div className="space-y-3">
           {warned && (
-            <div className="card warn-card">
-              <span className="chip chip-warn">Deload week</span>
-              <p className="small muted" style={{ marginTop: 8, marginBottom: 0 }}>
-                Some lifts are flagged — keep the load light and let your body catch up.
-              </p>
-            </div>
+            <motion.div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-400 bg-yellow-400/15 rounded-full px-2.5 py-0.5">Deload week</span>
+              <p className="text-sm text-yellow-300/80 mt-2">Some lifts are flagged — keep the load light and let your body catch up.</p>
+            </motion.div>
           )}
 
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
-          >
-          {plan.entries.map((e) => (
-            <motion.div
-              key={e.exercise.id}
-              variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-            <Link to="/log" className="card exercise-card">
-              <div className="exercise-card-top">
-                <span className="exercise-name">{e.exercise.name}</span>
-                <span className={`chip chip-${chipFor(e.target.mode)}`}>
-                  {modeLabel(e.target.mode)}
-                </span>
-              </div>
+          <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+            {plan.entries.map((e) => (
+              <motion.div key={e.exercise.id} variants={staggerItem}>
+                <Link to="/log" className="block rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:border-accent/40 transition-all duration-200 mb-3">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-lg font-bold tracking-tight">{e.exercise.name}</h3>
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      e.target.mode === 'increase' ? 'bg-emerald-500/15 text-emerald-400' :
+                      e.target.mode === 'deload' || e.target.mode === 'deload-suggested' ? 'bg-amber-500/15 text-amber-400' :
+                      e.target.mode === 'hold-high-rpe' ? 'bg-red-500/15 text-red-400' :
+                      'bg-accent/15 text-accent'
+                    }`}>
+                      {modeLabel(e.target.mode)}
+                    </span>
+                  </div>
 
-              {e.target.mode === 'new' ? (
-                <div className="target-big faint">
-                  Log your first set
-                  <span className="target-sub">{e.eff.repsRange[0]}–{e.eff.repsRange[1]} reps · {e.eff.sets} sets</span>
-                </div>
-              ) : (
-                <div className="target-big">
-                  {e.target.weightKg > 0 ? (
-                    <>
-                      {formatWeightNumber(e.target.weightKg, unit)}
-                      <span className="target-unit">
-                        {unit}
-                        {perHandSuffix(e.exercise.perHand)}
-                      </span>
-                      <span className="target-x"> × {formatRepRange(e.target.repsRange)}</span>
-                    </>
+                  {e.target.mode === 'new' ? (
+                    <div className="text-2xl font-bold text-muted-foreground mb-2">
+                      Log your first set
+                      <span className="block text-sm font-medium text-muted-foreground mt-1">{e.eff.repsRange[0]}–{e.eff.repsRange[1]} reps · {e.eff.sets} sets</span>
+                    </div>
                   ) : (
-                    formatRepRange(e.target.repsRange) + ' reps'
+                    <div className="mb-2">
+                      <span className="text-3xl font-extrabold tracking-tight">
+                        {e.target.weightKg > 0
+                          ? `${formatWeightNumber(e.target.weightKg, unit)} ${unit}${perHandSuffix(e.exercise.perHand)}`
+                          : formatRepRange(e.target.repsRange) + ' reps'}
+                      </span>
+                      <span className="text-accent font-bold ml-2">× {formatRepRange(e.target.repsRange)}</span>
+                      <span className="block text-sm text-muted-foreground mt-1">
+                        {e.eff.sets} sets · {formatRestSeconds(e.eff.restSeconds)} rest · RPE ≤ {e.target.rpeTarget} <Tip>{GLOSSARY.rpe}</Tip>
+                      </span>
+                    </div>
                   )}
-                  <span className="target-sub">
-                    {e.eff.sets} sets · {formatRestSeconds(e.eff.restSeconds)} rest · RPE ≤ {e.target.rpeTarget} <Tip>{GLOSSARY.rpe}</Tip>
-                  </span>
-                </div>
-              )}
 
-              <p className="small muted target-msg">{e.target.message}</p>
+                  <p className="text-sm text-muted-foreground/70 mb-3">{e.target.message}</p>
 
-              <div className="exercise-card-foot">
-                <span className="muted small">Tap to log</span>
-                {lastSession && <LastResult exerciseId={e.exercise.id} lastSession={lastSession} unit={unit} />}
-              </div>
-            </Link>
-            </motion.div>
-          ))}
+                  <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
+                    <span className="text-xs text-muted-foreground/60">Tap to log</span>
+                    {lastSession && <LastResult exerciseId={e.exercise.id} lastSession={lastSession} unit={unit} />}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: plan.entries.length * 0.06 + 0.1, duration: 0.3 }}
-          >
-            <Link to="/log" className="btn btn-primary btn-block start-btn">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: plan.entries.length * 0.06 + 0.1 }}>
+            <Link to="/log" className="block w-full text-center py-3.5 rounded-xl font-bold text-accent-foreground bg-accent hover:bg-accent/90 active:scale-[0.97] transition-all shadow-[0_4px_16px_rgba(245,158,11,0.3)]">
               Start workout
             </Link>
           </motion.div>
-        </>
+        </div>
       )}
     </div>
   )
@@ -167,24 +139,99 @@ export default function TodayScreen() {
 function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   const next = nextWorkout(plan)
   return (
-    <div className="empty">
-      <div className="empty-icon">💤</div>
-      <h3>Rest day</h3>
-      <p className="muted">
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-8 text-center shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="text-5xl mb-4 opacity-70">😴</div>
+      <h3 className="text-xl font-bold mb-2">Rest day</h3>
+      <p className="text-sm text-muted-foreground">
         Recovery is where the gains happen.
-        {next && (
-          <>
-            <br />
-            Next up: <strong>{next.name}</strong> on {formatDateKey(next.dateKey)}.
-          </>
-        )}
+        {next && <><br />Next up: <strong className="text-foreground">{next.name}</strong> on {formatDateKey(next.dateKey)}.</>}
       </p>
-      {plan.splitName && <span className="chip chip-accent">{plan.splitName}</span>}
-    </div>
+      {plan.splitName && <span className="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-accent/15 text-accent">{plan.splitName}</span>}
+    </motion.div>
   )
 }
 
-/** The next scheduled (non-rest) day within the next 7 days. */
+function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['settings'] }) {
+  const body = settings?.body
+  const unit = settings?.weightUnit ?? 'kg'
+  if (!body) {
+    return (
+      <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-6 text-center shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <p className="text-sm text-muted-foreground">
+          Add your body profile in <Link to="/settings" className="text-accent hover:underline">Settings</Link> to unlock personalized recommendations.
+        </p>
+      </motion.div>
+    )
+  }
+  return (
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Your body</p>
+      <div className="flex flex-wrap gap-2">
+        {[`${body.sex}`, `${body.ageYears} yrs`, `${body.heightCm} cm`, `${Math.round(body.bodyWeightKg * 10) / 10} ${unit}`, body.bodyFatPct != null && `${body.bodyFatPct}% fat`, body.activityLevel].filter(Boolean).map((v, i) => (
+          <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-muted-foreground font-medium">{v}</span>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+function LastResult({ exerciseId, lastSession, unit }: { exerciseId: string; lastSession: NonNullable<ReturnType<typeof useSessions>['sessions']>[number]; unit: 'kg' | 'lb' }) {
+  const log = lastSession.logs.find((l) => l.exerciseId === exerciseId)
+  if (!log || log.sets.length === 0) return null
+  const top = computeTopSet(log.sets)
+  if (!top) return null
+  return (
+    <span className="text-xs text-muted-foreground/60">
+      Last: {formatWeightNumber(top.weightKg, unit)} {unit} × {top.reps}{perHandSuffix(log.perHand)}
+    </span>
+  )
+}
+
+function TipsSection({ tips }: { tips: TipType[] }) {
+  const [dismissed, setDismissed] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('hyphe-dismissed-tips') ?? '[]')) } catch { return new Set() }
+  })
+  const [hidden, setHidden] = useState(() => localStorage.getItem('hyphe-tips-hidden') === 'true')
+
+  const dismiss = (id: string) => {
+    const next = new Set(dismissed); next.add(id)
+    setDismissed(next)
+    localStorage.setItem('hyphe-dismissed-tips', JSON.stringify([...next]))
+  }
+  const hideAll = () => { setHidden(true); localStorage.setItem('hyphe-tips-hidden', 'true') }
+  const showAll = () => { setHidden(false); setDismissed(new Set()); localStorage.removeItem('hyphe-tips-hidden'); localStorage.removeItem('hyphe-dismissed-tips') }
+
+  const visible = tips.filter((t) => !dismissed.has(t.id))
+  if (hidden || visible.length === 0) return (
+    <button type="button" className="w-full text-xs text-muted-foreground/60 hover:text-foreground py-2 transition-colors" onClick={showAll}>
+      Show tips
+    </button>
+  )
+
+  return (
+    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tips</p>
+        <button type="button" className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors" onClick={hideAll}>Hide</button>
+      </div>
+      {visible.slice(0, 3).map((t, i) => (
+        <div key={t.id} className={`flex items-start gap-3 py-2.5 ${i > 0 ? 'border-t border-white/[0.04]' : ''}`}>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+            t.accent === 'warn' ? 'bg-amber-500/15 text-amber-400' :
+            t.accent === 'good' ? 'bg-emerald-500/15 text-emerald-400' :
+            'bg-accent/15 text-accent'
+          }`}>{t.accent}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">{t.headline}</p>
+            {t.detail && <p className="text-xs text-muted-foreground/70 mt-0.5">{t.detail}</p>}
+          </div>
+          <button type="button" className="text-muted-foreground/40 hover:text-foreground text-lg leading-none" onClick={() => dismiss(t.id)}>×</button>
+        </div>
+      ))}
+    </motion.div>
+  )
+}
+
 function nextWorkout(plan: ReturnType<typeof useTodayPlan>): { name: string; dateKey: string } | null {
   const split = plan.split
   if (!split) return null
@@ -199,148 +246,12 @@ function nextWorkout(plan: ReturnType<typeof useTodayPlan>): { name: string; dat
   return null
 }
 
-function LastResult({
-  exerciseId,
-  lastSession,
-  unit,
-}: {
-  exerciseId: string
-  lastSession: NonNullable<ReturnType<typeof useSessions>['sessions']>[number]
-  unit: 'kg' | 'lb'
-}) {
-  const log = lastSession.logs.find((l) => l.exerciseId === exerciseId)
-  if (!log || log.sets.length === 0) return null
-  const top = computeTopSet(log.sets)
-  if (!top) return null
-  return (
-    <span className="faint small">
-      Last: {formatWeightNumber(top.weightKg, unit)} {unit} × {top.reps}
-      {perHandSuffix(log.perHand)}
-    </span>
-  )
-}
-
-function TipsSection({ tips }: { tips: TipType[] }) {
-  const [dismissed, setDismissed] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('ht-dismissed-tips')
-      return stored ? new Set(JSON.parse(stored)) : new Set()
-    } catch { return new Set() }
-  })
-  const [hidden, setHidden] = useState(() => {
-    try { return localStorage.getItem('ht-tips-hidden') === 'true' } catch { return false }
-  })
-
-  function dismiss(id: string) {
-    const next = new Set(dismissed)
-    next.add(id)
-    setDismissed(next)
-    localStorage.setItem('ht-dismissed-tips', JSON.stringify([...next]))
-  }
-
-  function hideAll() {
-    setHidden(true)
-    localStorage.setItem('ht-tips-hidden', 'true')
-  }
-
-  function showAll() {
-    setHidden(false)
-    setDismissed(new Set())
-    localStorage.removeItem('ht-tips-hidden')
-    localStorage.removeItem('ht-dismissed-tips')
-  }
-
-  const visible = tips.filter((t) => !dismissed.has(t.id))
-
-  if (hidden || visible.length === 0) {
-    return (
-      <button type="button" className="btn-ghost btn" style={{ width: '100%', marginBottom: 12, fontSize: '0.85rem' }} onClick={showAll}>
-        {hidden ? 'Show tips' : 'No tips right now'}
-      </button>
-    )
-  }
-
-  return (
-    <div className="card tips-card">
-      <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Tips
-        <button type="button" className="btn-ghost btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={hideAll}>
-          Hide all
-        </button>
-      </div>
-      {visible.map((t) => (
-        <div key={t.id} className="tip-row">
-          <span className={`chip chip-${t.accent}`}>{t.accent}</span>
-          <div className="tip-text">
-            <span className="tip-headline">{t.headline}</span>
-            {t.detail && <span className="tip-detail faint small">{t.detail}</span>}
-          </div>
-          <button type="button" className="tip-dismiss" onClick={() => dismiss(t.id)} title="Dismiss">
-            ×
-          </button>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['settings'] }) {
-  const body = settings?.body
-  const unit = settings?.weightUnit ?? 'kg'
-  if (!body) {
-    return (
-      <div className="card tips-card">
-        <div className="card-title">Your body</div>
-        <p className="muted small">
-          Add your body profile in{' '}
-          <Link to="/settings" style={{ color: 'var(--accent)' }}>
-            Settings
-          </Link>{' '}
-          to see your avatar and personalized recommendations.
-        </p>
-      </div>
-    )
-  }
-  return (
-    <div className="card tips-card">
-      <div className="card-title">Your body</div>
-      <div className="body-stats">
-        <span>{body.sex}</span>
-        <span>{body.ageYears} yrs</span>
-        <span>{body.heightCm} cm</span>
-        <span>
-          {Math.round(toDisplayWeight(body.bodyWeightKg, unit) * 10) / 10} {unit}
-        </span>
-        {body.bodyFatPct != null && <span>{body.bodyFatPct}% fat</span>}
-        <span>{body.activityLevel}</span>
-      </div>
-    </div>
-  )
-}
-
-function chipFor(mode: Instruction['mode']): string {
-  switch (mode) {
-    case 'deload':
-    case 'deload-suggested':
-      return 'warn'
-    case 're-acclimate':
-      return 'accent'
-    default:
-      return 'accent'
-  }
-}
-
 function modeLabel(mode: Instruction['mode']): string {
   switch (mode) {
-    case 'deload':
-      return 'Deload week'
-    case 'deload-suggested':
-      return 'Light week'
-    case 're-acclimate':
-      return 'Re-acclimate'
-    case 'new':
-      return 'First time'
-    default:
-      return 'On track'
+    case 'deload': return 'Deload'
+    case 'deload-suggested': return 'Light week'
+    case 're-acclimate': return 'Re-acclimate'
+    case 'new': return 'First time'
+    default: return 'On track'
   }
 }
