@@ -6,7 +6,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useProgress } from '../hooks/useProgress'
 import { useSettings } from '../hooks/useSettings'
 import { db } from '../db/db'
-import { generateTips, type Tip } from '../services/tips'
+import { generateTips, type Tip as TipType } from '../services/tips'
 import { computeTopSet } from '../services/overload'
 import {
   formatWeightNumber,
@@ -15,6 +15,7 @@ import {
   perHandSuffix,
   toDisplayWeight,
 } from '../utils/format'
+import Tip, { GLOSSARY } from '../components/Tip'
 import { addDaysToKey, formatDateKey, weekdayIndex } from '../utils/date'
 import { defaultParams } from '../algorithm/params'
 import type { Instruction } from '../algorithm/progression'
@@ -109,7 +110,7 @@ export default function TodayScreen() {
                     formatRepRange(e.target.repsRange) + ' reps'
                   )}
                   <span className="target-sub">
-                    {e.eff.sets} sets · {formatRestSeconds(e.eff.restSeconds)} rest · RPE ≤ {e.target.rpeTarget}
+                    {e.eff.sets} sets · {formatRestSeconds(e.eff.restSeconds)} rest · RPE ≤ {e.target.rpeTarget} <Tip>{GLOSSARY.rpe}</Tip>
                   </span>
                 </div>
               )}
@@ -188,7 +189,7 @@ function LastResult({
   )
 }
 
-function TipsSection({ tips }: { tips: Tip[] }) {
+function TipsSection({ tips }: { tips: TipType[] }) {
   return (
     <div className="card tips-card">
       <div className="card-title">Tips</div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Tip, { GLOSSARY } from '../components/Tip'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { useSessions } from '../hooks/useSessions'
@@ -239,7 +240,7 @@ function ProgressDetail({
           <StatTile label="Current target" value={`${p.repsRange[0]}–${p.repsRange[1]}`} sub="reps" />
         )}
         <StatTile
-          label="e1RM best"
+          label={<span>e1RM best <Tip>{GLOSSARY.e1rm}</Tip></span>}
           value={p.e1rmBest > 0 ? `${fmtNum(toDisplayWeight(p.e1rmBest, unit))} ${unit}${perHandSuffix(perHand)}` : '—'}
           sub={p.e1rmBestDate ? formatDateKey(p.e1rmBestDate) : undefined}
         />
@@ -254,7 +255,7 @@ function ProgressDetail({
       {!isBodyweight && p.e1rmHistory.length > 0 && (
         <>
           <div className="card-title" style={{ marginTop: 8 }}>
-            Estimated 1RM · {p.e1rmHistory.length} sessions
+            Estimated 1RM <Tip>{GLOSSARY.e1rm}</Tip> · {p.e1rmHistory.length} sessions
           </div>
           <E1rmChart history={p.e1rmHistory} unit={unit} perHand={perHand} />
         </>
@@ -308,7 +309,7 @@ function statusChip(p: ExerciseProgress): { cls: string; label: string } {
 
 /* ---------- Small bits ---------- */
 
-function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatTile({ label, value, sub }: { label: React.ReactNode; value: string; sub?: string }) {
   return (
     <div className="stat-tile">
       <span className="stat-label">{label}</span>
