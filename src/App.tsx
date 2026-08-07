@@ -1,4 +1,4 @@
-import { Component, type ReactNode, useEffect, useState } from 'react'
+import { Component, type ReactNode, useCallback, useEffect, useState } from 'react'
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { registerSW } from 'virtual:pwa-register'
@@ -9,6 +9,7 @@ import HistoryScreen from './screens/HistoryScreen'
 import ExercisesScreen from './screens/ExercisesScreen'
 import SplitsScreen from './screens/SplitsScreen'
 import SettingsScreen from './screens/SettingsScreen'
+import SplashScreen from './components/SplashScreen'
 import { Home, BarChart3, Dumbbell, Calendar, Settings } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -55,6 +56,8 @@ function AnimatedRoutes() {
 
 export default function App() {
   const [needsRefresh, setNeedsRefresh] = useState(false)
+  const [ready, setReady] = useState(false)
+  const onSplashReady = useCallback(() => setReady(true), [])
 
   useEffect(() => { void seedIfNeeded() }, [])
 
@@ -69,8 +72,14 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [updateSW])
 
+  if (!ready) {
+    return <SplashScreen onReady={onSplashReady} />
+  }
+
   return (
     <div className="app-shell">
+      {/* Subtle grain texture overlay for premium feel */}
+      <div className="grain-bg" />
       {/* Mobile: bottom tab bar */}
       <nav className="nav-bottom">
         {NAV_ITEMS.map((t) => (
