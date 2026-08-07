@@ -90,6 +90,19 @@ export default function SplitsScreen() {
     await db.splits.update(split.id, { name: newName.trim(), template: false })
   }
 
+  async function convertRestToWorkout(weekdayIndex: number) {
+    if (!split) return
+    const dayKey = `day-${Date.now().toString(36)}`
+    const dayName = DAY_LABELS[weekdayIndex]
+    const newSchedule = [...split.schedule]
+    newSchedule[weekdayIndex] = dayKey
+    const newDays = {
+      ...split.days,
+      [dayKey]: { id: dayKey, name: dayName, isRest: false, exercises: [] },
+    }
+    await db.splits.update(split.id, { schedule: newSchedule, days: newDays, template: false })
+  }
+
   async function duplicate(s: Split) {
     const copy: Split = {
       ...s,
@@ -183,6 +196,13 @@ export default function SplitsScreen() {
             <div key={`rest-${wi}`} className="card day-card day-rest">
               <span className="faint small">{DAY_LABELS[wi]}</span>
               <span className="muted small">Rest</span>
+              <button
+                className="btn-ghost btn"
+                style={{ marginLeft: 'auto', fontSize: '0.8rem', padding: '4px 10px' }}
+                onClick={() => void convertRestToWorkout(wi)}
+              >
+                + Add workout
+              </button>
             </div>
           )
         }

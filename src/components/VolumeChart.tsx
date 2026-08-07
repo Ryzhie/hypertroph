@@ -14,7 +14,7 @@ interface Props {
 
 const W = 320
 const H = 120
-const PAD = { top: 12, right: 4, bottom: 22, left: 4 }
+const PAD = { top: 14, right: 8, bottom: 24, left: 8 }
 
 export default function VolumeChart({ sessions, unit, days = 30 }: Props) {
   // Build daily volume map for last N days
