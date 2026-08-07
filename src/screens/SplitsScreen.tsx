@@ -58,7 +58,7 @@ export default function SplitsScreen() {
       <div className="screen">
         <h2 className="topbar-title">Plans</h2>
         <div className="empty">
-          <div className="empty-icon">🗓️</div>
+          <div className="empty-icon">📅</div>
           <p className="muted">No split yet.</p>
         </div>
       </div>
@@ -137,6 +137,11 @@ export default function SplitsScreen() {
     await commitExercises(dayKey, ids)
   }
 
+  const [splitName, setSplitName] = useState(split.name)
+  // Sync from Dexie when the active split changes (not on every keystroke).
+  const splitIdRef = split.id
+  useEffect(() => { setSplitName(split.name) }, [splitIdRef])
+
   return (
     <div className="screen splits-screen">
       <h2 className="topbar-title">Plans</h2>
@@ -144,7 +149,8 @@ export default function SplitsScreen() {
         Active plan:{' '}
         <input
           className="inline-edit"
-          value={split.name}
+          value={splitName}
+          onChange={(e) => setSplitName(e.target.value)}
           onBlur={(e) => void renameSplit(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
         />

@@ -1,14 +1,39 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-/** A small "?" icon that shows a popover explanation on tap/hover. */
+/**
+ * A small "?" icon that shows a popover explanation on tap (mobile) or
+ * hover (desktop). Uses stopPropagation to prevent triggering buttons
+ * beneath it on mobile.
+ */
 export default function Tip({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLSpanElement>(null)
+
+  const toggle = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setOpen((o) => !o)
+  }, [])
+
+  // Close when tapping outside
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: PointerEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onDown, true)
+    return () => document.removeEventListener('pointerdown', onDown, true)
+  }, [open])
+
   return (
-    <span className="tip-wrap">
+    <span className="tip-wrap" ref={wrapRef}>
       <button
         type="button"
         className="tip-trigger"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
+        onTouchEnd={toggle}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
         aria-label="More info"

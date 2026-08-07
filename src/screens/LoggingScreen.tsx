@@ -41,7 +41,7 @@ export default function LoggingScreen() {
     return (
       <div className="screen">
         <div className="empty">
-          <div className="empty-icon">😴</div>
+          <div className="empty-icon">💤</div>
           <p>No workout scheduled today.</p>
           <button className="btn" onClick={() => navigate('/')}>
             Back to Today

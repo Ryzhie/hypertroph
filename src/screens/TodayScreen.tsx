@@ -145,7 +145,7 @@ function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   const next = nextWorkout(plan)
   return (
     <div className="empty">
-      <div className="empty-icon">😴</div>
+      <div className="empty-icon">💤</div>
       <h3>Rest day</h3>
       <p className="muted">
         Recovery is where the gains happen.

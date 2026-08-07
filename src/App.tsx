@@ -8,13 +8,14 @@ import HistoryScreen from './screens/HistoryScreen'
 import ExercisesScreen from './screens/ExercisesScreen'
 import SplitsScreen from './screens/SplitsScreen'
 import SettingsScreen from './screens/SettingsScreen'
+import { HomeIcon, ChartIcon, DumbbellIcon, CalendarIcon, SettingsIcon } from './components/Icons'
 
 const TABS = [
-  { to: '/', label: 'Today', icon: '🏋️', end: true },
-  { to: '/history', label: 'History', icon: '📊', end: false },
-  { to: '/exercises', label: 'Exercises', icon: '📚', end: false },
-  { to: '/plans', label: 'Plans', icon: '🗓️', end: false },
-  { to: '/settings', label: 'Settings', icon: '⚙️', end: false },
+  { to: '/', label: 'Today', Icon: HomeIcon, end: true },
+  { to: '/history', label: 'History', Icon: ChartIcon, end: false },
+  { to: '/exercises', label: 'Exercises', Icon: DumbbellIcon, end: false },
+  { to: '/plans', label: 'Plans', Icon: CalendarIcon, end: false },
+  { to: '/settings', label: 'Settings', Icon: SettingsIcon, end: false },
 ]
 
 export default function App() {
@@ -77,7 +78,7 @@ export default function App() {
             end={t.end}
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
-            <span className="nav-icon">{t.icon}</span>
+            <span className="nav-icon"><t.Icon size={22} /></span>
             <span>{t.label}</span>
           </NavLink>
         ))}

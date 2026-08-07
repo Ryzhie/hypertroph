@@ -54,7 +54,7 @@ function SessionsView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
   if (sessions.length === 0) {
     return (
       <div className="empty">
-        <div className="empty-icon">📈</div>
+        <div className="empty-icon">📊</div>
         <h3>No workouts yet</h3>
         <p className="muted">Finish your first session from Today and it will show up here.</p>
       </div>
@@ -192,7 +192,7 @@ function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
   if (withProgress.length === 0) {
     return (
       <div className="empty">
-        <div className="empty-icon">📈</div>
+        <div className="empty-icon">📊</div>
         <h3>No strength data yet</h3>
         <p className="muted">Log a few sessions and the estimated one-rep max trend for each lift appears here.</p>
       </div>

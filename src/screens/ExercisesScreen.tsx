@@ -81,7 +81,7 @@ export default function ExercisesScreen() {
 
       {filtered.length === 0 && (
         <div className="empty">
-          <div className="empty-icon">🔎</div>
+          <div className="empty-icon">🔍</div>
           <p className="muted">No exercises match.</p>
         </div>
       )}
