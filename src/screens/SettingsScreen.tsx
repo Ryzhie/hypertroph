@@ -369,14 +369,8 @@ function AppearanceSection() {
     document.documentElement.style.fontSize = `${size}px`
   }
 
-  // Apply on mount
-  useState(() => {
-    const vars = THEMES[theme]
-    for (const [k, v] of Object.entries(vars)) {
-      document.documentElement.style.setProperty(k, v)
-    }
-    document.documentElement.style.fontSize = `${fontSize}px`
-  })
+  // Theme/font are applied in main.tsx on startup.
+  // applyTheme/applyFontSize below handle live changes from the UI.
 
   return (
     <div className="card settings-block">

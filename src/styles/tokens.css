@@ -40,10 +40,9 @@
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 
-  /* Typography */
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
-    system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  /* Typography — Inter (clean, geometric UI font) with system fallbacks */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
 
   /* Spacing — 4px grid */
   --space-1: 4px;
