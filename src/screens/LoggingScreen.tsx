@@ -1,3 +1,4 @@
+import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTodayPlan } from '../hooks/useTodayPlan'
@@ -161,7 +162,7 @@ export default function LoggingScreen() {
                   {hasData && <span className="chip chip-good" style={{ marginLeft: 6, fontSize: '0.7rem' }}>logged</span>}
                 </div>
               </div>
-              <span className="chevron" aria-hidden>{isOpen ? '▴' : '▾'}</span>
+              <span className="chevron" aria-hidden>{isOpen ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}</span>
             </button>
 
             {isOpen && (<>

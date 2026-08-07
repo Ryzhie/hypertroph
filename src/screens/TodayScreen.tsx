@@ -21,8 +21,6 @@ import { addDaysToKey, formatDateKey, weekdayIndex } from '../utils/date'
 import { defaultParams } from '../algorithm/params'
 import type { Instruction } from '../algorithm/progression'
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
 export default function TodayScreen() {
   const plan = useTodayPlan()
   const { sessions } = useSessions()
@@ -58,11 +56,9 @@ export default function TodayScreen() {
             {formatDateKey(plan.today)} · {plan.splitName ?? '—'}
           </div>
           <h2>
-            {plan.isRestDay ? 'Rest day' : plan.dayName}{' '}
-            <span className="faint">· {plan.weekdayName}</span>
+            {plan.isRestDay ? 'Rest day' : plan.dayName}
           </h2>
         </div>
-        <span className="chip">{DAY_LABELS[new Date().getDay()]}</span>
       </header>
 
       {tips.length > 0 && <TipsSection tips={tips} />}

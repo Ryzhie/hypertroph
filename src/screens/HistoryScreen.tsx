@@ -1,3 +1,4 @@
+import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
 import { useState } from 'react'
 import Tip, { GLOSSARY } from '../components/Tip'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -112,7 +113,7 @@ function SessionCard({
           <span className="faint small">{session.splitName}</span>
         </span>
         <span className="chevron" aria-hidden>
-          {open ? '▴' : '▾'}
+          {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
         </span>
       </button>
 

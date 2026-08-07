@@ -1,3 +1,4 @@
+import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
@@ -145,7 +146,7 @@ function ExerciseCard({
           </span>
         </span>
         <span className="chevron" aria-hidden>
-          {open ? '▴' : '▾'}
+          {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
         </span>
       </button>
 

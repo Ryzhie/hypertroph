@@ -8,7 +8,7 @@
 
 .screen {
   flex: 1;
-  padding: 16px 16px calc(88px + env(safe-area-inset-bottom));
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(88px + env(safe-area-inset-bottom));
 }
 
 /* Desktop: more generous padding, no bottom nav */
@@ -814,8 +814,10 @@
 }
 .chevron {
   color: var(--text-faint);
-  font-size: 0.85rem;
-  padding-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .session-summary {
