@@ -22,6 +22,9 @@ export default function SplitsScreen() {
   const [query, setQuery] = useState('')
   const split = splits.find((s) => s.id === activeId) ?? splits[0]
   const day = editing ? split?.days[editing] : undefined
+  const [splitName, setSplitName] = useState(split?.name ?? '')
+  const splitIdRef = split?.id
+  useEffect(() => { if (split) setSplitName(split.name) }, [splitIdRef])
 
   const dayMuscles = useMemo(() => {
     if (!day) return new Set<string>()
@@ -136,11 +139,6 @@ export default function SplitsScreen() {
     ;[ids[index], ids[j]] = [ids[j], ids[index]]
     await commitExercises(dayKey, ids)
   }
-
-  const [splitName, setSplitName] = useState(split.name)
-  // Sync from Dexie when the active split changes (not on every keystroke).
-  const splitIdRef = split.id
-  useEffect(() => { setSplitName(split.name) }, [splitIdRef])
 
   return (
     <div className="screen splits-screen">
