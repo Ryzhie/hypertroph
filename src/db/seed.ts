@@ -13,13 +13,19 @@ export async function seedIfNeeded(): Promise<void> {
     // v3 migration: backfill section + tags on exercises that predate these flags.
     // All old exercises are 'weights'; tags are copied from the seed data.
     const tagMap = new Map(EXERCISE_SEED.filter((e) => e.tags && e.tags.length > 0).map((e) => [e.id, e.tags!]))
+    // Backfill section='weights' on exercises that predate the section field.
     await db.exercises
-      .filter((e) => e.section === undefined || (e.tags === undefined && tagMap.has(e.id)))
-      .modify(function () {
-        const self = this as { section?: string; tags?: string[]; id: string }
-        if (self.section === undefined) self.section = 'weights'
-        if (self.tags === undefined && tagMap.has(self.id)) self.tags = tagMap.get(self.id)
-      })
+      .filter((e) => e.section === undefined)
+      .modify({ section: 'weights' as const })
+    // Backfill tags from seed data for exercises that have tags in the seed.
+    const needsTags = await db.exercises
+      .filter((e) => e.tags === undefined && tagMap.has(e.id))
+      .toArray()
+    if (needsTags.length > 0) {
+      await db.exercises.bulkPut(
+        needsTags.map((e) => ({ ...e, tags: tagMap.get(e.id) })),
+      )
+    }
     return
   }
 
