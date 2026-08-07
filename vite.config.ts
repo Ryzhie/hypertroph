@@ -25,8 +25,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
-        name: 'Hypertrophic',
-        short_name: 'Hypertrophic',
+        name: 'Hyphe',
+        short_name: 'Hyphe',
         description:
           'Personal progressive-overload workout tracker. Tells you what to lift next, every session.',
         theme_color: '#0f172a',

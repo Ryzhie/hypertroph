@@ -14,7 +14,7 @@ export const SETTINGS_ID = 'main'
 /** The settings row includes its own key. */
 export type StoredSettings = Settings & { id: string }
 
-class HypertrophicDB extends Dexie {
+class HypheDB extends Dexie {
   exercises!: Table<Exercise, string>
   splits!: Table<Split, string>
   sessions!: Table<WorkoutSession, string>
@@ -45,4 +45,4 @@ class HypertrophicDB extends Dexie {
   }
 }
 
-export const db = new HypertrophicDB()
+export const db = new HypheDB()

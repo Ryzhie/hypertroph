@@ -85,8 +85,8 @@ export default function App() {
       {/* Desktop: side navigation */}
       <nav className="nav-side">
         <div className="nav-side-brand">
-          <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="Hypertrophic" className="nav-side-logo" />
-          <span>Hypertrophic</span>
+          <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="Hyphe" className="nav-side-logo" />
+          <span>Hyphe</span>
         </div>
         {NAV_ITEMS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.to === '/'}
@@ -119,7 +119,7 @@ class ErrorBoundary extends Component<
 > {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) {
-    console.error('[Hypertrophic ErrorBoundary]', error)
+    console.error('[Hyphe ErrorBoundary]', error)
     return { error }
   }
   render() {

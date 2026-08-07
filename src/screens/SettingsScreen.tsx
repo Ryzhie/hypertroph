@@ -327,22 +327,27 @@ const THEMES: Record<ThemeName, Record<string, string>> = {
   midnight: {
     '--bg': '#0f1218', '--bg-elevated': '#171c24', '--bg-card': '#1a1f29',
     '--border': '#252d3a', '--accent': '#f59e0b', '--accent-strong': '#fbbf24',
+    '--text-dim': '#a0aec0', '--text-faint': '#6b7a90',
   },
   slate: {
     '--bg': '#0e1117', '--bg-elevated': '#151a24', '--bg-card': '#1a2030',
     '--border': '#2a3444', '--accent': '#60a5fa', '--accent-strong': '#93c5fd',
+    '--text-dim': '#94b4d8', '--text-faint': '#6889ad',
   },
   ocean: {
     '--bg': '#0b1120', '--bg-elevated': '#131c30', '--bg-card': '#182240',
     '--border': '#2a3a5a', '--accent': '#38bdf8', '--accent-strong': '#7dd3fc',
+    '--text-dim': '#8ec5d8', '--text-faint': '#5f9ab8',
   },
   forest: {
     '--bg': '#0e1510', '--bg-elevated': '#162018', '--bg-card': '#1c2a1e',
     '--border': '#2d3f30', '--accent': '#4ade80', '--accent-strong': '#86efac',
+    '--text-dim': '#8bc4a0', '--text-faint': '#5f9a76',
   },
   violet: {
     '--bg': '#12101a', '--bg-elevated': '#1a1724', '--bg-card': '#201d2e',
     '--border': '#342f44', '--accent': '#a78bfa', '--accent-strong': '#c4b5fd',
+    '--text-dim': '#b0a8cc', '--text-faint': '#8078a0',
   },
 }
 

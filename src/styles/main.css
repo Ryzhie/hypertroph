@@ -1,4 +1,4 @@
-/* Hypertrophic app styles. Grows with the screens. */
+/* Hyphe app styles. Grows with the screens. */
 
 .app-shell {
   display: flex;
@@ -211,14 +211,16 @@
   }
 }
 
-/* Cards — premium glass-morphism feel */
+/* Cards — liquid glass effect */
 .card {
-  background: var(--bg-card);
-  border: 0.5px solid var(--border);
+  background: rgba(26, 31, 41, 0.65);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 0.5px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius);
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -744,6 +746,8 @@
 .topbar-title {
   font-size: 1.35rem;
   font-weight: 800;
+  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
+  letter-spacing: -0.03em;
   margin-bottom: 12px;
 }
 
@@ -972,11 +976,12 @@
 .tip-wrap {
   position: relative;
   display: inline-flex;
-  /* Extra padding creates a larger touch zone without visual size change */
   padding: 8px;
   margin: -8px;
   vertical-align: middle;
-  z-index: 50;
+  z-index: 0;
+  /* Prevents the tip from escaping above the navbar on scroll */
+  overflow: visible;
 }
 .tip-trigger {
   display: inline-flex;

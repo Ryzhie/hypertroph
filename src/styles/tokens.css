@@ -1,4 +1,4 @@
-/* Hypertrophic design tokens — bridges custom tokens with shadcn theme.
+/* Hyphe design tokens — bridges custom tokens with shadcn theme.
    shadcn defines --background/--foreground/--card/--primary in tailwind.css
    (.dark block). These --bg/--accent aliases let existing main.css code
    keep working while we migrate to shadcn primitives over time. */
