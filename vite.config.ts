@@ -7,7 +7,7 @@ import path from 'path'
 // The app lives at https://<user>.github.io/hypertroph/ so every asset needs
 // this base prefix. Override it for a native (Capacitor) build with `./`.
 // Keep the repo name in this ONE place.
-const REPO_NAME = 'overload'
+const REPO_NAME = 'hypertroph' // GitHub repo name (URL is github.io/hypertroph/)
 const base = process.env.VITE_BASE_PATH ?? `/${REPO_NAME}/`
 
 export default defineConfig({
