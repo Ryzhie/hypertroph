@@ -70,6 +70,7 @@ export default function App() {
         </Routes>
       </ErrorBoundary>
 
+      {/* Mobile: bottom tab bar */}
       <nav className="nav-bottom">
         {TABS.map((t) => (
           <NavLink
@@ -79,6 +80,22 @@ export default function App() {
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
             <span className="nav-icon"><t.Icon size={22} /></span>
+            <span>{t.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Desktop: side navigation */}
+      <nav className="nav-side">
+        <div className="nav-side-brand">OverLoad</div>
+        {TABS.map((t) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            end={t.end}
+            className={({ isActive }) => (isActive ? 'active' : '')}
+          >
+            <span className="nav-side-icon"><t.Icon size={20} /></span>
             <span>{t.label}</span>
           </NavLink>
         ))}

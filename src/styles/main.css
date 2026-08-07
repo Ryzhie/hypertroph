@@ -11,10 +11,10 @@
   padding: 16px 16px calc(88px + env(safe-area-inset-bottom));
 }
 
-/* Desktop: more generous padding, use available space */
+/* Desktop: more generous padding, no bottom nav */
 @media (min-width: 768px) {
   .screen {
-    padding: 24px 32px calc(88px + env(safe-area-inset-bottom));
+    padding: 24px 32px 40px;
   }
 }
 
@@ -89,6 +89,90 @@
 
 .nav-bottom a.active .nav-icon {
   transform: scale(1.1);
+}
+
+/* Desktop: side navigation replaces bottom bar */
+.nav-side {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-bottom {
+    display: none;
+  }
+
+  .nav-side {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    background: var(--bg-elevated);
+    border-right: 0.5px solid var(--border);
+    padding: 20px 0;
+    z-index: 20;
+  }
+
+  .nav-side-brand {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+    padding: 0 20px 20px;
+    letter-spacing: -0.02em;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .nav-side a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    color: var(--text-faint);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-side a:hover {
+    color: var(--text);
+    background: var(--bg-input);
+  }
+
+  .nav-side a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-subtle);
+  }
+
+  .nav-side-icon {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #root {
+    margin-left: 200px;
+  }
+
+  .screen {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .nav-side {
+    width: 220px;
+  }
+
+  #root {
+    margin-left: 220px;
+  }
 }
 
 /* Cards — premium glass-morphism feel */
