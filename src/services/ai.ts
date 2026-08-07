@@ -34,7 +34,7 @@ export function buildAiPrompt(input: AiPromptInput): string {
   const lines: string[] = []
 
   // ---- Header with terminology ----
-  lines.push('# HyperTroph — AI Training Assistant\n')
+  lines.push('# OverLoad — AI Training Assistant\n')
   lines.push('You are a data-driven fitness coach. The following data comes from a progressive-overload workout tracker.\n')
   lines.push('**Terminology key:**')
   lines.push('- **e1RM** (estimated 1-Rep Max): the heaviest weight you could theoretically lift for one rep, calculated from your actual sets using the Epley formula (weight × (1 + reps/30)).')

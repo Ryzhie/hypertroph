@@ -14,7 +14,7 @@ export const SETTINGS_ID = 'main'
 /** The settings row includes its own key. */
 export type StoredSettings = Settings & { id: string }
 
-class HyperTrophDB extends Dexie {
+class OverLoadDB extends Dexie {
   exercises!: Table<Exercise, string>
   splits!: Table<Split, string>
   sessions!: Table<WorkoutSession, string>
@@ -23,7 +23,7 @@ class HyperTrophDB extends Dexie {
   aiInsights!: Table<AiInsight, string>
 
   constructor() {
-    super('hypertroph')
+    super('hypertroph') // Keep original name for backward compat — don't change or data is lost
     // v1: original M1 schema. Must be kept so Dexie can migrate existing DBs.
     this.version(1).stores({
       exercises: 'id, name, archived',
@@ -45,4 +45,4 @@ class HyperTrophDB extends Dexie {
   }
 }
 
-export const db = new HyperTrophDB()
+export const db = new OverLoadDB()

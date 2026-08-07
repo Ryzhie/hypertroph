@@ -93,7 +93,7 @@ class ErrorBoundary extends Component<
 > {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) {
-    console.error('[HyperTroph ErrorBoundary]', error)
+    console.error('[OverLoad ErrorBoundary]', error)
     return { error }
   }
   render() {
