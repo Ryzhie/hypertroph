@@ -12,22 +12,47 @@ export default function SplitsScreen() {
   const splitsRaw = useLiveQuery(() => db.splits.toArray(), [])
   const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
 
-  // Guard: useLiveQuery can return unexpected values during DB migration.
   const splits = Array.isArray(splitsRaw) ? splitsRaw : []
   const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
 
-  // Still loading from Dexie — show nothing rather than flash.
+  // ALL hooks must be called before ANY early return (Rules of Hooks).
+  const activeId = settings?.splitId
+  const [editing, setEditing] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
+  const [query, setQuery] = useState('')
+  const split = splits.find((s) => s.id === activeId) ?? splits[0]
+  const day = editing ? split?.days[editing] : undefined
+
+  const dayMuscles = useMemo(() => {
+    if (!day) return new Set<string>()
+    const set = new Set<string>()
+    for (const slot of day.exercises) {
+      const ex = exercises.find((e) => e.id === slot.exerciseId)
+      for (const g of ex?.muscleGroups ?? []) set.add(g)
+    }
+    return set
+  }, [day, exercises])
+
+  const suggestions = useMemo(() => {
+    if (!day) return []
+    const q = query.trim().toLowerCase()
+    const relevant: Exercise[] = []
+    const rest: Exercise[] = []
+    for (const e of exercises) {
+      if (e.archived) continue
+      if (q && !e.name.toLowerCase().includes(q)) continue
+      if (day.exercises.some((s) => s.exerciseId === e.id)) continue
+      if (e.muscleGroups.some((g) => dayMuscles.has(g))) relevant.push(e)
+      else rest.push(e)
+    }
+    const byName = (a: Exercise, b: Exercise) => a.name.localeCompare(b.name)
+    return [...relevant.sort(byName), ...rest.sort(byName)]
+  }, [day, exercises, dayMuscles, query])
+
+  // Loading from Dexie — don't render until data is ready.
   if (splitsRaw === undefined || exercisesRaw === undefined) {
     return <div className="screen splits-screen" />
   }
-
-  const activeId = settings?.splitId
-
-  const [editing, setEditing] = useState<string | null>(null) // dayKey
-  const [adding, setAdding] = useState(false)
-  const [query, setQuery] = useState('')
-
-  const split = splits.find((s) => s.id === activeId) ?? splits[0]
   if (!split) {
     return (
       <div className="screen">
@@ -39,8 +64,6 @@ export default function SplitsScreen() {
       </div>
     )
   }
-
-  const day = editing ? split.days[editing] : undefined
 
   function toggleDay(dayKey: string) {
     setEditing((cur) => {
@@ -108,32 +131,6 @@ export default function SplitsScreen() {
     ;[ids[index], ids[j]] = [ids[j], ids[index]]
     await commitExercises(dayKey, ids)
   }
-
-  const dayMuscles = useMemo(() => {
-    if (!day) return new Set<string>()
-    const set = new Set<string>()
-    for (const slot of day.exercises) {
-      const ex = exercises.find((e) => e.id === slot.exerciseId)
-      for (const g of ex?.muscleGroups ?? []) set.add(g)
-    }
-    return set
-  }, [day, exercises])
-
-  const suggestions = useMemo(() => {
-    if (!day) return []
-    const q = query.trim().toLowerCase()
-    const relevant: Exercise[] = []
-    const rest: Exercise[] = []
-    for (const e of exercises) {
-      if (e.archived) continue
-      if (q && !e.name.toLowerCase().includes(q)) continue
-      if (day.exercises.some((s) => s.exerciseId === e.id)) continue
-      if (e.muscleGroups.some((g) => dayMuscles.has(g))) relevant.push(e)
-      else rest.push(e)
-    }
-    const byName = (a: Exercise, b: Exercise) => a.name.localeCompare(b.name)
-    return [...relevant.sort(byName), ...rest.sort(byName)]
-  }, [day, exercises, dayMuscles, query])
 
   return (
     <div className="screen splits-screen">

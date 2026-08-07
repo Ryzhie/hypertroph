@@ -17,13 +17,10 @@ const EQUIPMENT_OPTIONS = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweigh
 export default function ExercisesScreen() {
   const raw = useLiveQuery(() => db.exercises.orderBy('name').toArray(), [])
   const exercises = Array.isArray(raw) ? raw : []
+
+  // ALL hooks must be called before ANY early return (Rules of Hooks).
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
-
-  // Loading from Dexie — don't render until data is ready.
-  if (raw === undefined) {
-    return <div className="screen exercises-screen" />
-  }
   const [expanded, setExpanded] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
 
@@ -38,6 +35,11 @@ export default function ExercisesScreen() {
   }, [exercises, filter, query])
 
   const archived = exercises.filter((e) => e.archived)
+
+  // Loading from Dexie — don't render until data is ready.
+  if (raw === undefined) {
+    return <div className="screen exercises-screen" />
+  }
 
   return (
     <div className="screen exercises-screen">
