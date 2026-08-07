@@ -68,6 +68,8 @@ export interface Exercise {
   tracksDuration?: boolean
   /** Default duration in minutes for duration-based exercises. */
   defaultDuration?: number
+  /** Section-specific tags (intensity for cardio, type for sport). */
+  tags?: string[]
   /** Explicit achievable weights (dumbbells, machines). Falls back to a derived ladder. */
   weightLadder?: number[]
   /** Soft delete — never hard-delete an exercise; history depends on it. */
