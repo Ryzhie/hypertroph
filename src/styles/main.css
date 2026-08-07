@@ -356,6 +356,30 @@
 .insight-row:first-of-type {
   border-top: none;
 }
+.ai-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 8px;
+}
+.ai-step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ai-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
 .today-header {
   display: flex;
   align-items: flex-start;

@@ -327,11 +327,13 @@ function AiAnalysisSection() {
   const insightsRaw = useLiveQuery(() => db.aiInsights.orderBy('createdAt').reverse().toArray(), [])
   const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
   const insights = Array.isArray(insightsRaw) ? insightsRaw : []
+  const importRef = useRef<HTMLInputElement>(null)
 
   const [prompt, setPrompt] = useState<string | null>(null)
   const [pasted, setPasted] = useState('')
   const [source, setSource] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   function genPrompt() {
     const text = buildAiPrompt({
@@ -343,9 +345,11 @@ function AiAnalysisSection() {
     })
     setPrompt(text)
     void navigator.clipboard.writeText(text).then(() => {
-      setMsg('Prompt copied to clipboard — paste into any AI of your choice.')
+      setCopied(true)
+      setMsg('✓ Prompt copied — paste into any AI.')
+      setTimeout(() => setCopied(false), 2000)
     }).catch(() => {
-      setMsg('Copy failed — use the text below.')
+      setMsg('Copy failed — select and copy the text below.')
     })
   }
 
@@ -363,35 +367,64 @@ function AiAnalysisSection() {
       })
       setPasted('')
       setSource('')
-      setMsg('Analysis saved ✓')
+      setMsg('✓ Analysis saved.')
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Invalid response format.')
     }
   }
 
+  async function importJson(file: File) {
+    try {
+      const text = await file.text()
+      setPasted(text)
+      setSource(file.name.replace(/\.json$/i, ''))
+      setMsg('JSON loaded — review and save.')
+    } catch {
+      setMsg('Failed to read file.')
+    }
+  }
+
   return (
     <div className="card settings-block">
-      <div className="card-title">AI Analysis</div>
+      <div className="card-title">AI Training Analysis</div>
       <p className="muted small">
-        Export your data as a structured prompt, paste it into any AI (Claude, GPT, Gemini…),
-        and import the response. Run it on multiple AIs to reduce bias.
+        Export your data → paste into any AI (Claude, GPT, Gemini, DeepSeek…) →
+        get a structured response → paste it back here. Run on multiple AIs for
+        more reliable results.
       </p>
 
-      <div className="exercise-detail-foot">
-        <button className="btn btn-primary" onClick={genPrompt}>
-          Generate prompt
-        </button>
+      <div className="ai-step">
+        <span className="ai-step-num">1</span>
+        <div>
+          <strong>Generate & copy prompt</strong>
+          <p className="muted small" style={{ margin: '2px 0 0' }}>
+            Creates a comprehensive data dump with mode selection (analysis / advice / plan).
+          </p>
+        </div>
       </div>
+      <button className="btn btn-primary btn-block" onClick={genPrompt}>
+        {copied ? '✓ Copied!' : 'Generate prompt & copy'}
+      </button>
 
       {prompt && (
         <details className="prompt-preview">
-          <summary className="muted small">Show generated prompt</summary>
+          <summary className="muted small">Preview prompt ({Math.round(prompt.length / 1000)}k chars)</summary>
           <pre className="prompt-text">{prompt}</pre>
         </details>
       )}
 
+      <div className="ai-step">
+        <span className="ai-step-num">2</span>
+        <div>
+          <strong>Paste AI response</strong>
+          <p className="muted small" style={{ margin: '2px 0 0' }}>
+            The AI should respond with valid JSON matching the schema in the prompt.
+          </p>
+        </div>
+      </div>
+
       <label className="field">
-        <span className="field-label">AI source (optional)</span>
+        <span className="field-label">AI source</span>
         <input
           value={source}
           onChange={(e) => setSource(e.target.value)}
@@ -399,21 +432,36 @@ function AiAnalysisSection() {
         />
       </label>
 
-      <label className="field">
-        <span className="field-label">Paste AI response (JSON)</span>
-        <textarea
-          className="ai-textarea"
-          rows={6}
-          value={pasted}
-          onChange={(e) => setPasted(e.target.value)}
-          placeholder='{"overall": "...", "fatigue": "low", ...}'
-        />
-      </label>
+      <textarea
+        className="ai-textarea"
+        rows={6}
+        value={pasted}
+        onChange={(e) => setPasted(e.target.value)}
+        placeholder='Paste JSON response from your AI here…'
+      />
 
-      <div className="exercise-detail-foot">
-        <button className="btn btn-primary" disabled={!pasted.trim()} onClick={() => void submitResponse()}>
+      <div className="ai-actions">
+        <button
+          className="btn btn-primary"
+          disabled={!pasted.trim()}
+          onClick={() => void submitResponse()}
+        >
           Save response
         </button>
+        <button className="btn" onClick={() => importRef.current?.click()}>
+          Import JSON
+        </button>
+        <input
+          ref={importRef}
+          type="file"
+          accept="application/json,.json"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) void importJson(f)
+            e.target.value = ''
+          }}
+        />
       </div>
 
       {msg && <p className="field-hint">{msg}</p>}
@@ -425,8 +473,9 @@ function AiAnalysisSection() {
             <div key={ins.id} className="insight-row">
               <span className="muted small">
                 {formatDateKey(ins.createdAt.slice(0, 10))} · {ins.source}
-                {ins.parsed?.fatigue && <span className="chip chip-accent"> {ins.parsed.fatigue}</span>}
-                {ins.parsed?.progressRate && <span className="chip chip-accent"> {ins.parsed.progressRate}</span>}
+                {ins.parsed?.fatigue && <span className="chip chip-accent">fatigue: {ins.parsed.fatigue}</span>}
+                {ins.parsed?.progressRate && <span className="chip chip-accent">rate: {ins.parsed.progressRate}</span>}
+                {ins.parsed?.deloadSuggested && <span className="chip chip-warn">deload suggested</span>}
               </span>
             </div>
           ))}
