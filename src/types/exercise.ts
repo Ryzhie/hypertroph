@@ -9,6 +9,7 @@ export type MuscleGroup =
   | 'glutes'
   | 'calves'
   | 'core'
+  | 'cardio'
   | 'full'
 
 export const MUSCLE_GROUP_LABELS: Record<MuscleGroup, string> = {
@@ -22,6 +23,7 @@ export const MUSCLE_GROUP_LABELS: Record<MuscleGroup, string> = {
   glutes: 'Glutes',
   calves: 'Calves',
   core: 'Core',
+  cardio: 'Cardio',
   full: 'Full body',
 }
 

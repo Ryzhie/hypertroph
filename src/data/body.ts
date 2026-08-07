@@ -110,6 +110,7 @@ export const MUSCLE_REGIONS: Record<MuscleGroup, string[]> = {
   glutes: ['glute'],
   calves: ['calf'],
   core: ['abs'],
+  cardio: [],
   full: ['chest', 'delt', 'biceps', 'forearm', 'abs', 'traps', 'lat', 'triceps', 'glute', 'ham', 'quad', 'calf'],
 }
 
@@ -186,6 +187,11 @@ export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string
     exercises: ['Hanging Leg Raise', 'Cable Crunch', 'Ab Wheel', 'Plank'],
     tip: 'Bracing (not just flexing) is the key to core strength.',
     cue: 'Draw your belly button toward your spine.',
+  },
+  cardio: {
+    exercises: ['Treadmill Run', 'Stationary Bike', 'Rowing Machine', 'Jump Rope', 'Elliptical'],
+    tip: 'Cardio builds endurance and aids recovery. 2-3 sessions per week at moderate intensity.',
+    cue: 'Zone 2 training (60-70% max HR) builds aerobic base most efficiently.',
   },
   full: {
     exercises: ['Any compound lift (Squat, Deadlift, Bench, Row, OHP)'],

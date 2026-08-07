@@ -61,4 +61,12 @@ export const EXERCISE_SEED: SeedExercise[] = [
   { id: 'hanging-leg-raise', name: 'Hanging Leg Raise', muscleGroups: ['core'], category: 'isolation', equipment: 'Bodyweight', isBodyweight: true, defaultSets: 3, defaultRepsRange: [8, 15], defaultRestSeconds: 90 },
   { id: 'cable-crunch', name: 'Cable Crunch', muscleGroups: ['core'], category: 'isolation', equipment: 'Cable', defaultSets: 3, defaultRepsRange: [12, 20], defaultRestSeconds: 90 },
   { id: 'ab-wheel-rollout', name: 'Ab Wheel Rollout', muscleGroups: ['core'], category: 'compound', equipment: 'Bodyweight', isBodyweight: true, defaultSets: 3, defaultRepsRange: [6, 12], defaultRestSeconds: 90 },
+
+  // Cardio
+  { id: 'treadmill-run', name: 'Treadmill Run', muscleGroups: ['cardio'], category: 'compound', equipment: 'Machine', defaultSets: 1, defaultRepsRange: [20, 30], defaultRestSeconds: 0 },
+  { id: 'stationary-bike', name: 'Stationary Bike', muscleGroups: ['cardio', 'legs'], category: 'compound', equipment: 'Machine', defaultSets: 1, defaultRepsRange: [15, 30], defaultRestSeconds: 0 },
+  { id: 'rowing-machine', name: 'Rowing Machine', muscleGroups: ['cardio', 'back'], category: 'compound', equipment: 'Machine', defaultSets: 1, defaultRepsRange: [15, 25], defaultRestSeconds: 0 },
+  { id: 'jump-rope', name: 'Jump Rope', muscleGroups: ['cardio', 'calves'], category: 'compound', equipment: 'Other', defaultSets: 3, defaultRepsRange: [30, 60], defaultRestSeconds: 60 },
+  { id: 'elliptical', name: 'Elliptical', muscleGroups: ['cardio', 'legs'], category: 'compound', equipment: 'Machine', defaultSets: 1, defaultRepsRange: [15, 30], defaultRestSeconds: 0 },
+  { id: 'stair-master', name: 'Stair Master', muscleGroups: ['cardio', 'glutes', 'calves'], category: 'compound', equipment: 'Machine', defaultSets: 1, defaultRepsRange: [15, 20], defaultRestSeconds: 0 },
 ]
