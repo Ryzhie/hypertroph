@@ -144,7 +144,7 @@ export function buildAiPrompt(input: AiPromptInput): string {
   // ---- Volume by muscle ----
   const muscleVol: Record<MuscleGroup, number> = {
     chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0,
-    forearms: 0, legs: 0, glutes: 0, calves: 0, core: 0, cardio: 0, full: 0,
+    forearms: 0, legs: 0, glutes: 0, calves: 0, core: 0, cardio: 0, sport: 0, full: 0,
   }
   for (const s of recent14) {
     for (const log of s.logs) {

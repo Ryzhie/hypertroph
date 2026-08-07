@@ -96,10 +96,9 @@
   display: none;
 }
 
+/* ======== DESKTOP LAYOUT (tablet+ / laptop) ======== */
 @media (min-width: 768px) {
-  .nav-bottom {
-    display: none;
-  }
+  .nav-bottom { display: none; }
 
   .nav-side {
     display: flex;
@@ -109,69 +108,96 @@
     top: 0;
     bottom: 0;
     width: 200px;
-    background: var(--bg-elevated);
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, color-mix(in srgb, var(--bg-elevated) 92%, black) 100%);
     border-right: 0.5px solid var(--border);
-    padding: 20px 0;
+    padding: 24px 0;
     z-index: 20;
   }
 
   .nav-side-brand {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--accent);
-    padding: 0 20px 20px;
-    letter-spacing: -0.02em;
+    padding: 0 24px 24px;
+    letter-spacing: -0.03em;
     border-bottom: 0.5px solid var(--border);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
   .nav-side a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 20px;
+    gap: 14px;
+    padding: 12px 24px;
     color: var(--text-faint);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 500;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     border-left: 3px solid transparent;
+    border-radius: 0 8px 8px 0;
+    margin-right: 8px;
   }
 
   .nav-side a:hover {
     color: var(--text);
     background: var(--bg-input);
+    border-radius: 0 8px 8px 0;
   }
 
   .nav-side a.active {
-    color: var(--accent);
+    color: var(--accent-strong);
     border-left-color: var(--accent);
     background: var(--accent-subtle);
+    font-weight: 600;
   }
 
   .nav-side-icon {
-    width: 20px;
+    width: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.7;
+  }
+
+  .nav-side a.active .nav-side-icon {
+    opacity: 1;
   }
 
   #root {
     margin-left: 200px;
+    max-width: none;
   }
 
   .screen {
-    padding-left: 32px;
-    padding-right: 32px;
+    padding: 32px 40px 48px;
+  }
+
+  .topbar-title {
+    font-size: 1.8rem;
   }
 }
 
 @media (min-width: 1200px) {
   .nav-side {
-    width: 220px;
+    width: 240px;
+    padding: 28px 0;
+  }
+
+  .nav-side-brand {
+    padding: 0 28px 28px;
+  }
+
+  .nav-side a {
+    padding: 12px 28px;
   }
 
   #root {
-    margin-left: 220px;
+    margin-left: 240px;
+  }
+
+  /* Two-column grid for dashboard on large screens */
+  .today-screen .card {
+    break-inside: avoid;
   }
 }
 

@@ -6,21 +6,24 @@ import BodyMap from '../components/BodyMap'
 import { MUSCLE_INFO } from '../data/body'
 import {
   MUSCLE_GROUP_LABELS,
+  SECTION_LABELS,
   type Exercise,
   type ExerciseCategory,
+  type ExerciseSection,
   type MuscleGroup,
 } from '../types/exercise'
 
 type Filter = MuscleGroup | 'all'
 
 const MUSCLE_ORDER = Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroup[]
+const SECTIONS: ExerciseSection[] = ['weights', 'calisthenics', 'cardio', 'sport']
 const EQUIPMENT_OPTIONS = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight', 'Other']
 
 export default function ExercisesScreen() {
   const raw = useLiveQuery(() => db.exercises.orderBy('name').toArray(), [])
   const exercises = Array.isArray(raw) ? raw : []
 
-  // ALL hooks must be called before ANY early return (Rules of Hooks).
+  const [section, setSection] = useState<ExerciseSection>('weights')
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -30,15 +33,15 @@ export default function ExercisesScreen() {
     const q = query.trim().toLowerCase()
     return exercises.filter((e) => {
       if (e.archived) return false
+      if ((e.section ?? 'weights') !== section) return false
       if (filter !== 'all' && !e.muscleGroups.includes(filter)) return false
       if (q && !e.name.toLowerCase().includes(q)) return false
       return true
     })
-  }, [exercises, filter, query])
+  }, [exercises, section, filter, query])
 
   const archived = exercises.filter((e) => e.archived)
 
-  // Loading from Dexie — don't render until data is ready.
   if (raw === undefined) {
     return <div className="screen exercises-screen" />
   }
@@ -46,10 +49,19 @@ export default function ExercisesScreen() {
   return (
     <div className="screen exercises-screen">
       <h2 className="topbar-title">Exercises</h2>
-      <p className="muted small">
-        Your exercise database ({filtered.length} shown). Tap a lift to see the muscles it
-        targets; add your own if something's missing.
-      </p>
+
+      {/* Section tabs: Weights / Calisthenics / Cardio / Sports */}
+      <div className="segment section-tabs">
+        {SECTIONS.map((s) => (
+          <button
+            key={s}
+            className={section === s ? 'selected' : ''}
+            onClick={() => { setSection(s); setFilter('all'); setExpanded(null) }}
+          >
+            {SECTION_LABELS[s]}
+          </button>
+        ))}
+      </div>
 
       <input
         className="search-box"
@@ -83,7 +95,7 @@ export default function ExercisesScreen() {
       {filtered.length === 0 && (
         <div className="empty">
           <div className="empty-icon">🔍</div>
-          <p className="muted">No exercises match.</p>
+          <p className="muted">No exercises in this section.</p>
         </div>
       )}
 
@@ -105,7 +117,7 @@ export default function ExercisesScreen() {
       )}
 
       {adding ? (
-        <AddExerciseForm onDone={() => setAdding(false)} />
+        <AddExerciseForm onDone={() => setAdding(false)} section={section} />
       ) : (
         <button className="btn btn-block" onClick={() => setAdding(true)}>
           + Add exercise
@@ -286,6 +298,7 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
 interface ExerciseForm {
   name: string
   muscleGroups: MuscleGroup[]
+  section: ExerciseSection
   equipment: string
   category: ExerciseCategory
   sets: number
@@ -296,17 +309,18 @@ interface ExerciseForm {
   perHand: boolean
 }
 
-function AddExerciseForm({ onDone }: { onDone: () => void }) {
+function AddExerciseForm({ onDone, section }: { onDone: () => void; section: ExerciseSection }) {
   const [f, setF] = useState<ExerciseForm>({
     name: '',
     muscleGroups: [],
-    equipment: 'Dumbbell',
+    section,
+    equipment: section === 'calisthenics' ? 'Bodyweight' : 'Dumbbell',
     category: 'compound',
     sets: 3,
     repsMin: 8,
     repsMax: 12,
     rest: 90,
-    isBodyweight: false,
+    isBodyweight: section === 'calisthenics',
     perHand: false,
   })
   const set = (patch: Partial<ExerciseForm>) => setF((cur) => ({ ...cur, ...patch }))
@@ -321,6 +335,7 @@ function AddExerciseForm({ onDone }: { onDone: () => void }) {
       id: finalId,
       name,
       muscleGroups: f.muscleGroups,
+      section: f.section,
       category: f.category,
       equipment: f.equipment,
       defaultSets: f.sets,
