@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { useSessions } from '../hooks/useSessions'
@@ -93,8 +94,18 @@ export default function TodayScreen() {
             </div>
           )}
 
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
+          >
           {plan.entries.map((e) => (
-            <Link to="/log" key={e.exercise.id} className="card exercise-card">
+            <motion.div
+              key={e.exercise.id}
+              variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+            <Link to="/log" className="card exercise-card">
               <div className="exercise-card-top">
                 <span className="exercise-name">{e.exercise.name}</span>
                 <span className={`chip chip-${chipFor(e.target.mode)}`}>
@@ -134,11 +145,19 @@ export default function TodayScreen() {
                 {lastSession && <LastResult exerciseId={e.exercise.id} lastSession={lastSession} unit={unit} />}
               </div>
             </Link>
+            </motion.div>
           ))}
+          </motion.div>
 
-          <Link to="/log" className="btn btn-primary btn-block start-btn">
-            Start workout
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: plan.entries.length * 0.06 + 0.1, duration: 0.3 }}
+          >
+            <Link to="/log" className="btn btn-primary btn-block start-btn">
+              Start workout
+            </Link>
+          </motion.div>
         </>
       )}
     </div>
