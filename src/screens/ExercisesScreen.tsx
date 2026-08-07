@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import BodyMap from '../components/BodyMap'
+import { MUSCLE_INFO } from '../data/body'
 import {
   MUSCLE_GROUP_LABELS,
   type Exercise,
@@ -237,6 +238,30 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
         ))}
       </div>
       <BodyMap active={exercise.muscleGroups} view="both" />
+
+      {exercise.muscleGroups.length > 0 && (() => {
+        const info = MUSCLE_INFO[exercise.muscleGroups[0]]
+        if (!info) return null
+        return (
+          <div className="muscle-info">
+            <div className="muscle-info-row">
+              <span className="muscle-info-label">Form cue</span>
+              <span className="muscle-info-text">{info.cue}</span>
+            </div>
+            <div className="muscle-info-row">
+              <span className="muscle-info-label">Tip</span>
+              <span className="muscle-info-text">{info.tip}</span>
+            </div>
+            <div className="muscle-info-row">
+              <span className="muscle-info-label">Also try</span>
+              <span className="muscle-info-text">
+                {info.exercises.filter((e) => e !== exercise.name).slice(0, 3).join(', ')}
+              </span>
+            </div>
+          </div>
+        )
+      })()}
+
       <div className="exercise-detail-foot">
         <span className="muted small">
           Rest {formatRest(exercise.defaultRestSeconds)} · {exercise.defaultSets} sets

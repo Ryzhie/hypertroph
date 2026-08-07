@@ -955,6 +955,35 @@
   gap: 8px;
   margin-top: 10px;
 }
+
+.muscle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+}
+.muscle-info-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.muscle-info-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+.muscle-info-text {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
 .archived-box {
   padding: 12px;
 }

@@ -2,97 +2,101 @@ import type { MuscleGroup } from '../types/exercise'
 
 /**
  * Muscle-map regions for the front/back body SVG.
- *
- * Each region is authored on the LEFT half of a 240×440 viewBox and mirrored
- * to the right side by the BodyMap component, so shapes are symmetric by
- * construction. `view: 'both'` regions (forearms, calves) appear on both sides
- * of the figure. `deco` regions (head, feet) are non-muscle.
+ * Redesigned with smoother, more anatomical curves.
+ * Each region is authored on the LEFT half (viewBox 200×420) and
+ * mirrored to the right by the BodyMap component.
  */
 export interface BodyRegion {
   id: string
   view: 'front' | 'back' | 'both'
   d: string
   deco?: boolean
-  /** Centered shapes (abs, head) render once — no right-side mirror. */
   centered?: boolean
 }
 
+const CX = 100 // center x
+
 export const BODY_REGIONS: BodyRegion[] = [
-  // --- front ---
-  { id: 'head', view: 'front', d: 'M120 6 a20 24 0 1 0 0.1 0 Z', deco: true },
+  // --- decorative ---
+  { id: 'head', view: 'front', d: `M${CX} 4 a16 19 0 1 0 0.01 0 Z`, deco: true },
+
+  // --- front: torso ---
   {
     id: 'chest',
     view: 'front',
-    d: 'M78 88 C92 80 108 84 114 94 L112 160 C104 168 84 164 78 152 C76 120 76 100 78 88 Z',
+    d: `M${CX - 32} 72 C${CX - 18} 66 ${CX - 6} 70 ${CX - 2} 82 L${CX - 4} 140 C${CX - 10} 150 ${CX - 28} 146 ${CX - 32} 136 C${CX - 34} 110 ${CX - 34} 88 ${CX - 32} 72 Z`,
   },
   {
     id: 'delt',
     view: 'front',
-    d: 'M66 86 C58 72 70 62 84 66 C92 68 97 76 94 88 C84 94 72 94 66 86 Z',
+    d: `M${CX - 38} 74 C${CX - 44} 62 ${CX - 32} 52 ${CX - 20} 58 C${CX - 14} 60 ${CX - 10} 68 ${CX - 12} 78 C${CX - 22} 84 ${CX - 34} 82 ${CX - 38} 74 Z`,
   },
   {
     id: 'biceps',
     view: 'front',
-    d: 'M88 96 C82 104 78 120 78 136 L92 140 C92 120 94 104 100 96 Z',
+    d: `M${CX - 18} 86 C${CX - 24} 94 ${CX - 26} 112 ${CX - 24} 128 L${CX - 16} 130 C${CX - 16} 114 ${CX - 14} 98 ${CX - 8} 88 Z`,
   },
   {
     id: 'abs',
     view: 'front',
     centered: true,
-    d: 'M102 150 C106 148 134 148 138 150 L140 208 L100 208 Z',
+    d: `M${CX - 16} 140 C${CX - 12} 138 ${CX + 12} 138 ${CX + 16} 140 L${CX + 14} 200 L${CX - 14} 200 Z`,
   },
+
   // --- back ---
   {
     id: 'traps',
     view: 'back',
     centered: true,
-    d: 'M80 74 C98 64 142 64 160 74 L158 90 C140 80 100 80 82 90 Z',
+    d: `M${CX - 34} 64 C${CX - 16} 54 ${CX + 16} 54 ${CX + 34} 64 L${CX + 32} 82 C${CX + 16} 74 ${CX - 16} 74 ${CX - 32} 82 Z`,
   },
   {
     id: 'lat',
     view: 'back',
-    d: 'M78 118 C72 148 74 180 84 204 L108 196 C102 166 102 138 106 118 Z',
+    d: `M${CX - 30} 100 C${CX - 34} 130 ${CX - 32} 168 ${CX - 26} 194 L${CX - 14} 188 C${CX - 18} 160 ${CX - 16} 126 ${CX - 12} 100 Z`,
   },
   {
     id: 'triceps',
     view: 'back',
-    d: 'M88 96 C78 106 72 122 72 138 L86 142 C86 122 90 106 98 96 Z',
+    d: `M${CX - 16} 86 C${CX - 26} 94 ${CX - 30} 114 ${CX - 28} 130 L${CX - 18} 132 C${CX - 18} 114 ${CX - 12} 96 ${CX - 6} 88 Z`,
   },
   {
     id: 'glute',
     view: 'back',
-    d: 'M92 200 C86 220 88 236 94 246 L118 242 C116 226 114 208 110 200 Z',
+    d: `M${CX - 22} 186 C${CX - 28} 204 ${CX - 26} 222 ${CX - 20} 234 L${CX - 4} 230 C${CX - 6} 218 ${CX - 6} 200 ${CX - 2} 186 Z`,
   },
   {
     id: 'ham',
     view: 'back',
-    d: 'M92 244 C88 270 86 292 90 308 L116 308 C114 284 112 262 108 244 Z',
+    d: `M${CX - 20} 230 C${CX - 26} 256 ${CX - 26} 280 ${CX - 22} 302 L${CX - 10} 298 C${CX - 12} 274 ${CX - 10} 250 ${CX - 4} 230 Z`,
   },
+
   // --- both sides ---
   {
     id: 'forearm',
     view: 'both',
-    d: 'M74 142 C68 158 64 178 68 198 L82 194 C78 176 80 156 84 142 Z',
+    d: `M${CX - 26} 132 C${CX - 30} 150 ${CX - 34} 172 ${CX - 30} 192 L${CX - 22} 188 C${CX - 22} 168 ${CX - 18} 148 ${CX - 14} 132 Z`,
   },
   {
     id: 'quad',
     view: 'front',
-    d: 'M94 206 C88 240 86 268 90 298 L116 298 C116 262 114 232 110 206 Z',
+    d: `M${CX - 22} 198 C${CX - 28} 226 ${CX - 30} 254 ${CX - 26} 282 L${CX - 10} 278 C${CX - 12} 250 ${CX - 12} 222 ${CX - 6} 198 Z`,
   },
   {
     id: 'calf',
     view: 'both',
-    d: 'M88 306 C84 338 86 360 92 380 L116 376 C114 354 112 332 110 306 Z',
+    d: `M${CX - 24} 290 C${CX - 28} 314 ${CX - 26} 340 ${CX - 22} 358 L${CX - 10} 354 C${CX - 12} 332 ${CX - 10} 308 ${CX - 4} 290 Z`,
   },
 ]
 
-/** Decorative silhouette pieces (head, feet) for each view. */
+/** Decorative pieces for each view. */
 export const BODY_DECO: Record<'front' | 'back', string[]> = {
-  front: ['head', 'foot'],
-  back: ['head', 'foot'],
+  front: ['head'],
+  back: ['head'],
 }
 
-const FOOT_PATH = 'M86 384 L114 382 L116 394 L84 396 Z'
+// Foot path (decorative).
+const FOOT_PATH = `M${CX - 22} 364 L${CX - 8} 362 L${CX - 6} 374 L${CX - 24} 376 Z`
 
 /** Muscle group → region id(s) to highlight. `full` lights up everything. */
 export const MUSCLE_REGIONS: Record<MuscleGroup, string[]> = {
@@ -119,16 +123,73 @@ export const REGION_GROUP: Record<string, MuscleGroup> = Object.fromEntries(
 /** Resolve a set of active muscle groups to the region ids to light up. */
 export function regionsFor(groups: MuscleGroup[] | undefined): Set<string> {
   const active = new Set(groups ?? [])
-  if (active.has('full')) {
-    return new Set(MUSCLE_REGIONS.full)
-  }
+  if (active.has('full')) return new Set(MUSCLE_REGIONS.full)
   const ids = new Set<string>()
   for (const g of active) for (const id of MUSCLE_REGIONS[g] ?? []) ids.add(id)
   return ids
 }
 
-/** Get the region definition (with the foot path filled in) by id. */
+/** Get the region definition by id. */
 export function regionById(id: string): BodyRegion | undefined {
   if (id === 'foot') return { id: 'foot', view: 'both', d: FOOT_PATH, deco: true }
   return BODY_REGIONS.find((r) => r.id === id)
+}
+
+/** Per-muscle-group info: exercises, tips, common mistakes. */
+export const MUSCLE_INFO: Record<MuscleGroup, { exercises: string[]; tip: string; cue: string }> = {
+  chest: {
+    exercises: ['Barbell Bench Press', 'Incline Press', 'Dumbbell Bench Press', 'Cable Fly', 'Push-Up'],
+    tip: 'Drive through the middle chest; retract shoulder blades for stability.',
+    cue: 'Think "break the bar" at the bottom.',
+  },
+  back: {
+    exercises: ['Barbell Row', 'Deadlift', 'Lat Pulldown', 'Seated Row', 'Face Pull'],
+    tip: 'Initiate pulls from the lats, not the biceps.',
+    cue: 'Imagine squeezing an orange between your shoulder blades.',
+  },
+  shoulders: {
+    exercises: ['Overhead Press', 'Lateral Raise', 'Rear Delt Fly'],
+    tip: 'Keep core braced during presses; slight lean for lateral raises.',
+    cue: 'Think "pour out a pitcher" at the top of lateral raises.',
+  },
+  biceps: {
+    exercises: ['Barbell Curl', 'Dumbbell Curl', 'Hammer Curl', 'Cable Curl'],
+    tip: 'Control the eccentric (lowering) — that\'s where growth happens.',
+    cue: 'Squeeze at the top for a 1-second peak contraction.',
+  },
+  triceps: {
+    exercises: ['Triceps Pushdown', 'Close-Grip Bench', 'Dips', 'Overhead Extension'],
+    tip: 'Keep elbows pinned during pushdowns — only forearms move.',
+    cue: 'Straighten the arm fully at the bottom for peak contraction.',
+  },
+  forearms: {
+    exercises: ['Hammer Curl', 'Wrist Curl', 'Farmer\'s Walk'],
+    tip: 'Forearm volume correlates with grip strength and deadlift progress.',
+    cue: 'Squeeze the bar as hard as you can during every rep.',
+  },
+  legs: {
+    exercises: ['Squat', 'Leg Press', 'Romanian Deadlift', 'Lunges'],
+    tip: 'Depth matters more than weight — full ROM builds more muscle.',
+    cue: 'Push the floor away, not the bar.',
+  },
+  glutes: {
+    exercises: ['Hip Thrust', 'Romanian Deadlift', 'Walking Lunge', 'Deadlift'],
+    tip: 'Hip thrusts are the most direct glute builder; full lockout matters.',
+    cue: 'Squeeze your glutes at the top like you\'re cracking a walnut.',
+  },
+  calves: {
+    exercises: ['Standing Calf Raise', 'Seated Calf Raise', 'Leg Press Calf'],
+    tip: 'Full stretch at the bottom, peak contraction at the top.',
+    cue: 'Slow 2-second eccentric; don\'t bounce.',
+  },
+  core: {
+    exercises: ['Hanging Leg Raise', 'Cable Crunch', 'Ab Wheel', 'Plank'],
+    tip: 'Bracing (not just flexing) is the key to core strength.',
+    cue: 'Draw your belly button toward your spine.',
+  },
+  full: {
+    exercises: ['Any compound lift (Squat, Deadlift, Bench, Row, OHP)'],
+    tip: 'Compound movements hit multiple muscle groups — prioritize them.',
+    cue: 'Full-body days are great for beginners and recovery phases.',
+  },
 }
