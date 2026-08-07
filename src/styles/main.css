@@ -527,6 +527,47 @@
   margin-top: 10px;
 }
 
+/* ---- Theme swatches ---- */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+.theme-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.theme-swatch.active {
+  border-color: var(--accent);
+}
+.theme-preview {
+  width: 48px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  border: 2px solid;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 0 12px;
+}
+.theme-accent {
+  width: 24px;
+  height: 8px;
+  border-radius: 4px;
+}
+.theme-name {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
 /* Inline editable text input (blends into surrounding text). */
 .inline-edit {
   display: inline-block;

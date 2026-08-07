@@ -104,6 +104,8 @@ export default function SettingsScreen() {
     <div className="screen settings-screen">
       <h2 className="topbar-title">Settings</h2>
 
+      <AppearanceSection />
+
       <div className="card settings-block">
         <div className="card-title">Display</div>
         <div className="field">
@@ -315,6 +317,107 @@ export default function SettingsScreen() {
       </div>
 
       <AiAnalysisSection />
+    </div>
+  )
+}
+
+type ThemeName = 'midnight' | 'slate' | 'ocean' | 'forest' | 'violet'
+
+const THEMES: Record<ThemeName, Record<string, string>> = {
+  midnight: {
+    '--bg': '#0f1218', '--bg-elevated': '#171c24', '--bg-card': '#1a1f29',
+    '--border': '#252d3a', '--accent': '#f59e0b', '--accent-strong': '#fbbf24',
+  },
+  slate: {
+    '--bg': '#0e1117', '--bg-elevated': '#151a24', '--bg-card': '#1a2030',
+    '--border': '#2a3444', '--accent': '#60a5fa', '--accent-strong': '#93c5fd',
+  },
+  ocean: {
+    '--bg': '#0b1120', '--bg-elevated': '#131c30', '--bg-card': '#182240',
+    '--border': '#2a3a5a', '--accent': '#38bdf8', '--accent-strong': '#7dd3fc',
+  },
+  forest: {
+    '--bg': '#0e1510', '--bg-elevated': '#162018', '--bg-card': '#1c2a1e',
+    '--border': '#2d3f30', '--accent': '#4ade80', '--accent-strong': '#86efac',
+  },
+  violet: {
+    '--bg': '#12101a', '--bg-elevated': '#1a1724', '--bg-card': '#201d2e',
+    '--border': '#342f44', '--accent': '#a78bfa', '--accent-strong': '#c4b5fd',
+  },
+}
+
+function AppearanceSection() {
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    try { return (localStorage.getItem('overload-theme') as ThemeName) || 'midnight' } catch { return 'midnight' }
+  })
+  const [fontSize, setFontSize] = useState<number>(() => {
+    try { return Number(localStorage.getItem('overload-font-size')) || 16 } catch { return 16 }
+  })
+
+  function applyTheme(name: ThemeName) {
+    setTheme(name)
+    localStorage.setItem('overload-theme', name)
+    const vars = THEMES[name]
+    for (const [k, v] of Object.entries(vars)) {
+      document.documentElement.style.setProperty(k, v)
+    }
+  }
+
+  function applyFontSize(size: number) {
+    setFontSize(size)
+    localStorage.setItem('overload-font-size', String(size))
+    document.documentElement.style.fontSize = `${size}px`
+  }
+
+  // Apply on mount
+  useState(() => {
+    const vars = THEMES[theme]
+    for (const [k, v] of Object.entries(vars)) {
+      document.documentElement.style.setProperty(k, v)
+    }
+    document.documentElement.style.fontSize = `${fontSize}px`
+  })
+
+  return (
+    <div className="card settings-block">
+      <div className="card-title">Appearance</div>
+
+      <div className="field">
+        <span className="field-label">Theme</span>
+        <div className="theme-grid">
+          {(Object.keys(THEMES) as ThemeName[]).map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={`theme-swatch ${theme === name ? 'active' : ''}`}
+              onClick={() => applyTheme(name)}
+            >
+              <span className="theme-preview" style={{
+                background: THEMES[name]['--bg'],
+                borderColor: THEMES[name]['--accent'],
+              }}>
+                <span className="theme-accent" style={{ background: THEMES[name]['--accent'] }} />
+              </span>
+              <span className="theme-name">{name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="field">
+        <span className="field-label">Font size — {fontSize}px</span>
+        <div className="segment">
+          {[14, 15, 16, 17, 18].map((s) => (
+            <button
+              key={s}
+              className={fontSize === s ? 'selected' : ''}
+              onClick={() => applyFontSize(s)}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
