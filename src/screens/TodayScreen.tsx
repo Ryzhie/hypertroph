@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { MoonIcon } from '../components/Icons'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { useSessions } from '../hooks/useSessions'
 import { useProgress } from '../hooks/useProgress'
@@ -17,9 +18,14 @@ import { addDaysToKey, formatDateKey, weekdayIndex } from '../utils/date'
 import { defaultParams } from '../algorithm/params'
 import type { Instruction } from '../algorithm/progression'
 
-// Animation helpers
-const staggerContainer = { animate: { transition: { staggerChildren: 0.06 } } }
-const staggerItem = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
+// Animation helpers — explicit tween (no spring overshoot on y), under 300ms,
+// honoring reduced-motion by fading only.
+const EASE = [0.23, 1, 0.32, 1] as const
+const staggerContainer = { animate: { transition: { staggerChildren: 0.05 } } }
+const staggerItem = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE } },
+}
 
 export default function TodayScreen() {
   const plan = useTodayPlan()
@@ -29,6 +35,7 @@ export default function TodayScreen() {
   const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
   const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
   const params = settings?.params ?? defaultParams()
+  const reduceMotion = useReducedMotion()
   const tips = useMemo(
     () => generateTips({ body: settings?.body, progress, sessions, exercises, params, today: plan.today }),
     [settings?.body, progress, sessions, exercises, params, plan.today],
@@ -40,7 +47,11 @@ export default function TodayScreen() {
   return (
     <div className="space-y-5 p-4 md:p-8 max-w-4xl mx-auto">
       {/* Hero header */}
-      <motion.header initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+      <motion.header
+        initial={{ opacity: 0, y: reduceMotion ? 0 : -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0.2 : 0.28, ease: [0.23, 1, 0.32, 1] }}
+      >
         <p className="text-sm text-muted-foreground mb-1">{formatDateKey(plan.today)} · {plan.splitName}</p>
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent">
           {plan.isRestDay ? 'Rest day' : plan.dayName}
@@ -53,11 +64,11 @@ export default function TodayScreen() {
       {/* Streak + Volume charts — two columns on desktop */}
       {sessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div className="glass-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Streak · 14 days</p>
             <StreakChart sessions={sessions} />
           </motion.div>
-          <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <motion.div className="glass-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Volume · 30 days</p>
             <VolumeChart sessions={sessions} unit={unit} />
           </motion.div>
@@ -82,7 +93,7 @@ export default function TodayScreen() {
           <motion.div variants={staggerContainer} initial="hidden" animate="visible">
             {plan.entries.map((e) => (
               <motion.div key={e.exercise.id} variants={staggerItem}>
-                <Link to="/log" className="block rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:border-accent/40 transition-all duration-200 mb-3">
+                <Link to="/log" className="block glass-card hover:border-accent/40 transition-colors duration-200 mb-3">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-bold tracking-tight">{e.exercise.name}</h3>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -125,8 +136,12 @@ export default function TodayScreen() {
             ))}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: plan.entries.length * 0.06 + 0.1 }}>
-            <Link to="/log" className="block w-full text-center py-3.5 rounded-xl font-bold text-accent-foreground bg-accent hover:bg-accent/90 active:scale-[0.97] transition-all shadow-[0_4px_16px_rgba(245,158,11,0.3)]">
+          <motion.div
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(plan.entries.length * 0.04, 0.3), duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+          >
+            <Link to="/log" className="block w-full text-center py-3.5 rounded-xl font-bold text-accent-foreground bg-accent hover:bg-accent/90 active:scale-[0.97] transition-all shadow-[0_4px_16px_var(--accent-glow)]">
               Start workout
             </Link>
           </motion.div>
@@ -139,8 +154,8 @@ export default function TodayScreen() {
 function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   const next = nextWorkout(plan)
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-8 text-center shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="text-5xl mb-4 opacity-70">😴</div>
+    <motion.div className="glass-card rest-card text-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
+      <div className="text-5xl mb-4 opacity-70"><MoonIcon size={48} /></div>
       <h3 className="text-xl font-bold mb-2">Rest day</h3>
       <p className="text-sm text-muted-foreground">
         Recovery is where the gains happen.
@@ -156,7 +171,7 @@ function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['sett
   const unit = settings?.weightUnit ?? 'kg'
   if (!body) {
     return (
-      <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-6 text-center shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div className="glass-card text-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
         <p className="text-sm text-muted-foreground">
           Add your body profile in <Link to="/settings" className="text-accent hover:underline">Settings</Link> to unlock personalized recommendations.
         </p>
@@ -164,7 +179,7 @@ function BodyCard({ settings }: { settings: ReturnType<typeof useSettings>['sett
     )
   }
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div className="glass-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Your body</p>
       <div className="flex flex-wrap gap-2">
         {[`${body.sex}`, `${body.ageYears} yrs`, `${body.heightCm} cm`, `${Math.round(body.bodyWeightKg * 10) / 10} ${unit}`, body.bodyFatPct != null && `${body.bodyFatPct}% fat`, body.activityLevel].filter(Boolean).map((v, i) => (
@@ -191,7 +206,9 @@ function TipsSection({ tips }: { tips: TipType[] }) {
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('hyphe-dismissed-tips') ?? '[]')) } catch { return new Set() }
   })
-  const [hidden, setHidden] = useState(() => localStorage.getItem('hyphe-tips-hidden') === 'true')
+  const [hidden, setHidden] = useState(() => {
+    try { return localStorage.getItem('hyphe-tips-hidden') === 'true' } catch { return false }
+  })
 
   const dismiss = (id: string) => {
     const next = new Set(dismissed); next.add(id)
@@ -209,7 +226,7 @@ function TipsSection({ tips }: { tips: TipType[] }) {
   )
 
   return (
-    <motion.div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-md md:backdrop-blur-xl p-5 shadow-md md:shadow-[0_4px_24px_rgba(0,0,0,0.3)]" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+    <motion.div className="glass-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tips</p>
         <button type="button" className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors" onClick={hideAll}>Hide</button>

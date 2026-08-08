@@ -1,5 +1,6 @@
-import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
+import { ChevronDownIcon, CalendarIcon } from '../components/Icons'
 import { useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { useSettings } from '../hooks/useSettings'
@@ -62,7 +63,7 @@ export default function SplitsScreen() {
       <div className="screen">
         <h2 className="topbar-title">Plans</h2>
         <div className="empty">
-          <div className="empty-icon">📅</div>
+          <div className="empty-icon"><CalendarIcon /></div>
           <p className="muted">No split yet.</p>
         </div>
       </div>
@@ -208,76 +209,103 @@ export default function SplitsScreen() {
         )}
       </div>
 
+      <motion.div
+        key={split.id}
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.04 } } }}
+      >
       {split.schedule.map((dayKey, wi) => {
         const d = dayKey ? split.days[dayKey] : undefined
         if (!d) {
           return (
-            <div key={`rest-${wi}`} className="card day-card day-rest">
-              <span className="faint small">{DAY_LABELS[wi]}</span>
-              <span className="muted small">Rest</span>
-              <button
-                className="btn-ghost btn"
-                style={{ marginLeft: 'auto', fontSize: '0.8rem', padding: '4px 10px' }}
-                onClick={() => void convertRestToWorkout(wi)}
-              >
-                + Add workout
-              </button>
-            </div>
+            <motion.div
+              key={`rest-${wi}`}
+              variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0, transition: { duration: 0.26, ease: [0.23, 1, 0.32, 1] } } }}
+            >
+              <div className="card day-card day-rest">
+                <span className="faint small">{DAY_LABELS[wi]}</span>
+                <span className="muted small">Rest</span>
+                <button
+                  className="btn-ghost btn"
+                  style={{ marginLeft: 'auto', fontSize: '0.8rem', padding: '4px 10px' }}
+                  onClick={() => void convertRestToWorkout(wi)}
+                >
+                  + Add workout
+                </button>
+              </div>
+            </motion.div>
           )
         }
         return (
-          <DayCard
+          <motion.div
             key={d.id}
-            day={d}
-            weekday={DAY_LABELS[wi]}
-            exercises={exercises}
-            open={editing === d.id}
-            onToggle={() => toggleDay(d.id)}
-            onRename={(name) => void renameDay(d.id, name)}
-            onRemove={(index) =>
-              void commitExercises(d.id, d.exercises.filter((_, i) => i !== index).map((s) => s.exerciseId))
-            }
-            onMove={(index, dir) => void move(d.id, index, dir)}
-            onAdd={() => {
-              setAdding(true)
-              setQuery('')
-            }}
-          />
+            variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0, transition: { duration: 0.26, ease: [0.23, 1, 0.32, 1] } } }}
+          >
+            <DayCard
+              day={d}
+              weekday={DAY_LABELS[wi]}
+              exercises={exercises}
+              open={editing === d.id}
+              onToggle={() => toggleDay(d.id)}
+              onRename={(name) => void renameDay(d.id, name)}
+              onRemove={(index) =>
+                void commitExercises(d.id, d.exercises.filter((_, i) => i !== index).map((s) => s.exerciseId))
+              }
+              onMove={(index, dir) => void move(d.id, index, dir)}
+              onAdd={() => {
+                setAdding(true)
+                setQuery('')
+              }}
+            />
+          </motion.div>
         )
       })}
+      </motion.div>
 
-      {day && adding && (
-        <div className="card add-panel">
-          <div className="card-title">Add exercise to {day.name}</div>
-          <input
-            className="search-box"
-            type="search"
-            placeholder="Search exercises…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
-          />
-          <div className="suggest-list">
-            {suggestions.map((e) => (
-              <button
-                key={e.id}
-                type="button"
-                className="suggest-row"
-                onClick={() => {
-                  void addExerciseToDay(day.id, e.id)
-                  setAdding(false)
-                }}
-              >
-                <span className="exercise-name">{e.name}</span>
-                <span className="faint small">{e.equipment ?? ''}</span>
-              </button>
-            ))}
-            {suggestions.length === 0 && (
-              <p className="muted small">No matching exercises. Add one in the Exercises tab first.</p>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {day && adding && (
+          <motion.div
+            key="add-panel"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="card add-panel">
+              <div className="card-title">Add exercise to {day.name}</div>
+              <input
+                className="search-box"
+                type="search"
+                placeholder="Search exercises…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                autoFocus
+              />
+              <div className="suggest-list">
+                {suggestions.map((e) => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    className="suggest-row"
+                    onClick={() => {
+                      void addExerciseToDay(day.id, e.id)
+                      setAdding(false)
+                    }}
+                  >
+                    <span className="exercise-name">{e.name}</span>
+                    <span className="faint small">{e.equipment ?? ''}</span>
+                  </button>
+                ))}
+                {suggestions.length === 0 && (
+                  <p className="muted small">No matching exercises. Add one in the Exercises tab first.</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -319,7 +347,13 @@ function DayCard({
           <span className="faint small">{slots.length} exercises</span>
         </span>
         <span className="chevron" aria-hidden>
-          {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            style={{ display: 'inline-flex' }}
+          >
+            <ChevronDownIcon size={18} />
+          </motion.span>
         </span>
       </button>
 
@@ -336,7 +370,15 @@ function DayCard({
         </div>
       )}
 
+      <AnimatePresence initial={false}>
       {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+          style={{ overflow: 'hidden' }}
+        >
         <div className="day-editor">
           <label className="field">
             <span className="field-label">Day name</span>
@@ -389,7 +431,9 @@ function DayCard({
             + Add exercise
           </button>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   )
 }

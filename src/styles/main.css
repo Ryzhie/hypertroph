@@ -1,5 +1,51 @@
 /* Hyphe app styles. Grows with the screens. */
 
+/* Light glass card — TodayScreen dashboard cards. Same radius system as .card
+   so the two card styles don't visually conflict. */
+.glass-card {
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(24px) saturate(160%) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(160%) brightness(1.05);
+  padding: 20px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+
+@media (max-width: 767px) {
+  .glass-card {
+    padding: 18px;
+    backdrop-filter: blur(16px) saturate(140%) brightness(1.02);
+    -webkit-backdrop-filter: blur(16px) saturate(140%) brightness(1.02);
+  }
+}
+
+.glass-card.rest-card {
+  padding: 32px;
+}
+@media (max-width: 767px) {
+  .glass-card.rest-card {
+    padding: 28px;
+  }
+}
+
+/* Smooth cross-fade when the theme accent/surfaces change (Settings → Appearance).
+   Applied briefly by applyTheme(); scoped to colors so nothing janks. */
+html.theme-changing,
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition:
+    background-color 0.28s var(--ease-out),
+    border-color 0.28s var(--ease-out),
+    color 0.28s var(--ease-out),
+    fill 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out) !important;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -75,17 +121,18 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   border: none;
-  transition: color 0.2s ease;
+  transition: color var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-bottom a.active {
+.nav-bottom a:active {
   color: var(--accent);
 }
 
 .nav-bottom .nav-icon {
   font-size: 1.4rem;
   line-height: 1;
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-med) var(--ease-spring), opacity var(--dur-fast) ease;
 }
 
 .nav-bottom a.active .nav-icon {
@@ -145,16 +192,27 @@
     color: var(--text-faint);
     font-size: 0.92rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-instant) var(--ease-out);
     border-left: 3px solid transparent;
     border-radius: 0 8px 8px 0;
     margin-right: 8px;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .nav-side a:hover {
-    color: var(--text);
-    background: var(--bg-input);
-    border-radius: 0 8px 8px 0;
+  /* Hover feedback only on precise pointers — touch fires false hovers */
+  @media (hover: hover) and (pointer: fine) {
+    .nav-side a:hover {
+      color: var(--text);
+      background: var(--bg-input);
+    }
+  }
+
+  .nav-side a:active {
+    transform: scale(0.98);
   }
 
   .nav-side a.active {
@@ -170,6 +228,7 @@
     align-items: center;
     justify-content: center;
     opacity: 0.7;
+    transition: opacity var(--dur-fast) ease, transform var(--dur-med) var(--ease-spring);
   }
 
   .nav-side a.active .nav-side-icon {
@@ -231,7 +290,7 @@
     0 4px 24px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
   overflow: visible;
 }
 
@@ -257,7 +316,12 @@
   padding: 13px 18px;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: all 0.15s ease;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -270,12 +334,12 @@
   background: var(--accent);
   color: var(--accent-ink);
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 10px var(--accent-glow);
 }
 
 .btn-primary:active {
   transform: scale(0.97);
-  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 1px 4px var(--accent-glow);
 }
 
 .btn-ghost {
@@ -311,30 +375,42 @@
   background: var(--bg-input);
   color: var(--text-dim);
   border: none;
-  transition: background 0.15s ease;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+button.chip {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button.chip:active {
+  transform: scale(0.95);
 }
 
 .chip-accent {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.35);
+  background: var(--accent-subtle);
+  color: var(--accent-strong);
+  border-color: var(--accent-glow);
 }
 
 .chip-good {
   background: rgba(74, 222, 128, 0.12);
-  color: #4ade80;
+  color: var(--good);
   border-color: rgba(74, 222, 128, 0.35);
 }
 
 .chip-warn {
   background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
+  color: var(--warn);
   border-color: rgba(251, 191, 36, 0.35);
 }
 
 .chip-danger {
   background: rgba(248, 113, 113, 0.12);
-  color: #f87171;
+  color: var(--danger);
   border-color: rgba(248, 113, 113, 0.35);
 }
 
@@ -376,6 +452,11 @@
   font-size: 2.5rem;
   margin-bottom: 16px;
   opacity: 0.8;
+  display: inline-flex;
+}
+.empty .empty-icon svg {
+  width: 40px;
+  height: 40px;
 }
 .empty h3 {
   font-size: 1.1rem;
@@ -448,7 +529,12 @@
   border-radius: var(--radius-xs);
   font-weight: 600;
   font-size: 0.88rem;
-  transition: all 0.2s ease;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
 .segment button.selected {
   color: var(--text);
@@ -478,7 +564,7 @@
   padding: 2px 4px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.15s ease;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 .tip-dismiss:hover {
   color: var(--danger);
@@ -594,7 +680,14 @@
   border-radius: var(--radius-sm);
   padding: 8px 4px;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-swatch:active {
+  transform: scale(0.94);
 }
 .theme-swatch.active {
   border-color: var(--accent);
@@ -657,7 +750,7 @@
   display: block;
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 .exercise-card:active {
   border-color: var(--accent);
@@ -720,7 +813,11 @@
 /* ---- Logging screen — smooth expand/collapse ---- */
 .exercise-card-logging {
   cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color var(--dur-med) var(--ease-out),
+    background var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
   overflow: hidden;
 }
 .exercise-card-logging:active {
@@ -729,7 +826,11 @@
 .exercise-card-logging.open {
   border-color: var(--accent);
   cursor: default;
-  background: #1d2230;
+  background: var(--bg-card);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 1px var(--accent-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .exercise-card-logging .exercise-head {
   display: flex;
@@ -819,9 +920,15 @@
   color: var(--text-faint);
   font-size: 1.1rem;
   padding: 8px;
+  border-radius: 8px;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
 .set-remove:active {
   color: var(--danger);
+  transform: scale(0.9);
 }
 .rpe-picker {
   grid-column: 1 / -1;
@@ -905,6 +1012,12 @@
   padding: 0;
   margin-bottom: 10px;
   text-align: left;
+  border-radius: var(--radius-sm);
+  transition: transform var(--dur-instant) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.session-toggle:active {
+  transform: scale(0.99);
 }
 .session-toggle-text {
   display: flex;
@@ -1015,7 +1128,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 40%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+  background: radial-gradient(circle at 30% 40%, var(--accent-glow) 0%, transparent 60%),
               radial-gradient(circle at 70% 60%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
 }
 .splash-content {
@@ -1081,21 +1194,31 @@
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out);
   position: relative;
   z-index: 51;
 }
-.tip-trigger:hover,
+.tip-trigger:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
 .tip-trigger:active {
   background: var(--accent);
   color: var(--accent-ink);
   border-color: var(--accent);
+  transform: scale(0.88);
 }
 .tip-bubble {
   position: absolute;
   bottom: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: 50% calc(100% + 4px);
   width: max-content;
   max-width: 260px;
   background: var(--bg-card);
@@ -1108,6 +1231,18 @@
   box-shadow: var(--shadow-lg);
   z-index: 200;
   pointer-events: auto;
+  animation: tip-pop var(--dur-med) var(--ease-spring);
+}
+
+@keyframes tip-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 }
 .tip-bubble::after {
   content: '';
@@ -1175,7 +1310,7 @@
   width: 100%;
   height: auto;
   display: block;
-  transition: filter 0.4s ease;
+  transition: filter var(--dur-med) var(--ease-out);
 }
 /* Full color when no specific muscles highlighted */
 .bodymap-full {
@@ -1189,13 +1324,14 @@
 .bodymap-muted {
   filter: grayscale(0.7) brightness(0.6) opacity(0.55);
 }
-/* Accent overlay for highlighted muscles — positioned absolutely */
+/* Accent overlay for highlighted muscles — positioned absolutely.
+   Uses the theme accent so it follows the selected appearance. */
 .bodymap-overlay {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(245, 158, 11, 0.45) 0%, rgba(245, 158, 11, 0) 70%);
+  background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
   pointer-events: none;
-  animation: muscle-pulse 2s ease-in-out infinite;
+  animation: muscle-pulse 2s var(--ease-in-out) infinite;
 }
 @keyframes muscle-pulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -1213,8 +1349,8 @@
   text-transform: capitalize;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent-strong);
 }
 
 /* ---- Exercises catalog screen ---- */
@@ -1235,6 +1371,9 @@
   color: var(--text-dim);
   font-size: 0.78rem;
 }
+.filter-chip:active {
+  transform: scale(0.95);
+}
 .filter-chip.chip-active {
   background: var(--accent);
   border-color: var(--accent);
@@ -1251,6 +1390,12 @@
   color: inherit;
   padding: 0;
   text-align: left;
+  border-radius: var(--radius-sm);
+  transition: transform var(--dur-instant) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.exercise-toggle:active {
+  transform: scale(0.99);
 }
 .exercise-toggle-text {
   display: flex;
@@ -1303,11 +1448,11 @@
   text-transform: uppercase;
   border: none;
 }
-.tag-accent { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-.tag-good { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
-.tag-warn { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
-.tag-danger { background: rgba(248, 113, 113, 0.12); color: #f87171; }
-.tag-info { background: rgba(96, 165, 250, 0.12); color: #60a5fa; }
+.tag-accent { background: var(--accent-subtle); color: var(--accent-strong); }
+.tag-good { background: rgba(74, 222, 128, 0.12); color: var(--good); }
+.tag-warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); }
+.tag-danger { background: rgba(248, 113, 113, 0.12); color: var(--danger); }
+.tag-info { background: rgba(96, 165, 250, 0.12); color: var(--info); }
 
 .muscle-info-row {
   display: flex;
@@ -1427,9 +1572,22 @@
   color: var(--text-faint);
   font-size: 1rem;
   line-height: 1;
+  border-radius: 8px;
+  padding: 4px 6px;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
-.slot-remove:hover {
+.slot-remove:active {
   color: var(--danger);
+  transform: scale(0.9);
+}
+.slot-move .btn-ghost {
+  transition: transform var(--dur-instant) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.slot-move .btn-ghost:active {
+  transform: scale(0.92);
 }
 .add-panel {
   margin-top: 12px;
@@ -1454,7 +1612,12 @@
 .suggest-row:first-child {
   border-top: none;
 }
-.suggest-row:hover {
+@media (hover: hover) and (pointer: fine) {
+  .suggest-row:hover {
+    background: var(--bg-input);
+  }
+}
+.suggest-row:active {
   background: var(--bg-input);
 }
 .e1rm-end-label {
@@ -1465,4 +1628,35 @@
 .e1rm-axis-label {
   fill: var(--text-faint);
   font-size: 9px;
+}
+
+/* ======== Reduced motion & transparency ======== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .bodymap-overlay {
+    animation: none;
+  }
+  .tip-bubble {
+    animation: none;
+  }
+}
+
+/* Frostier surfaces when the user prefers less transparency. */
+@media (prefers-reduced-transparency: reduce) {
+  .card,
+  .topbar,
+  .nav-bottom,
+  .nav-side,
+  .update-banner {
+    background: var(--bg-elevated);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }

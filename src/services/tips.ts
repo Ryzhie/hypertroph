@@ -155,7 +155,7 @@ const RULES: ((input: TipInput) => Tip | null)[] = [
     const ph = ex?.perHand === true
     return {
       id: 'pr',
-      headline: `New e1RM best on ${ex?.name ?? prs[0].exerciseId}${prs.length > 1 ? ` +${prs.length - 1} more` : ''}! 🎉`,
+      headline: `New e1RM best on ${ex?.name ?? prs[0].exerciseId}${prs.length > 1 ? ` +${prs.length - 1} more` : ''}.`,
       detail: `${fmtWeight(prs[0].e1rmBest, ph)} — keep pushing.`,
       accent: 'good',
     }

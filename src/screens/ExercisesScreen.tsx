@@ -1,5 +1,6 @@
-import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
+import { ChevronDownIcon, SearchIcon } from '../components/Icons'
 import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import BodyMap from '../components/BodyMap'
@@ -83,18 +84,29 @@ export default function ExercisesScreen() {
         ))}
       </div>
 
-      {filtered.map((e) => (
-        <ExerciseCard
-          key={e.id}
-          exercise={e}
-          open={expanded === e.id}
-          onToggle={() => setExpanded((cur) => (cur === e.id ? null : e.id))}
-        />
-      ))}
+      <motion.div
+        key={section + filter + query}
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.035 } } }}
+      >
+        {filtered.map((e) => (
+          <motion.div
+            key={e.id}
+            variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0, transition: { duration: 0.26, ease: [0.23, 1, 0.32, 1] } } }}
+          >
+            <ExerciseCard
+              exercise={e}
+              open={expanded === e.id}
+              onToggle={() => setExpanded((cur) => (cur === e.id ? null : e.id))}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
 
       {filtered.length === 0 && (
         <div className="empty">
-          <div className="empty-icon">🔍</div>
+          <div className="empty-icon"><SearchIcon /></div>
           <p className="muted">No exercises in this section.</p>
         </div>
       )}
@@ -116,13 +128,32 @@ export default function ExercisesScreen() {
         </details>
       )}
 
-      {adding ? (
-        <AddExerciseForm onDone={() => setAdding(false)} section={section} />
-      ) : (
-        <button className="btn btn-block" onClick={() => setAdding(true)}>
-          + {section === 'sport' ? 'Add sport' : 'Add exercise'}
-        </button>
-      )}
+      <AnimatePresence mode="wait" initial={false}>
+        {adding ? (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <AddExerciseForm onDone={() => setAdding(false)} section={section} />
+          </motion.div>
+        ) : (
+          <motion.button
+            key="add-btn"
+            className="btn btn-block"
+            onClick={() => setAdding(true)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
+          >
+            + {section === 'sport' ? 'Add sport' : 'Add exercise'}
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -169,11 +200,29 @@ function ExerciseCard({
           )}
         </span>
         <span className="chevron" aria-hidden>
-          {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            style={{ display: 'inline-flex' }}
+          >
+            <ChevronDownIcon size={18} />
+          </motion.span>
         </span>
       </button>
 
-      {open && <ExerciseDetail exercise={exercise} />}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <ExerciseDetail exercise={exercise} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

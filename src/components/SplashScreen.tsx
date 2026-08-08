@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 /**
  * Splash screen shown while the app loads. Displays the logo with a
@@ -7,14 +7,16 @@ import { motion, AnimatePresence } from 'framer-motion'
  */
 export default function SplashScreen({ onReady }: { onReady: () => void }) {
   const [visible, setVisible] = useState(true)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
+    const hold = reduceMotion ? 600 : 1500
     const timer = setTimeout(() => {
       setVisible(false)
-      setTimeout(onReady, 600) // wait for exit animation
-    }, 1800) // show for 1.8s minimum
+      setTimeout(onReady, reduceMotion ? 100 : 450) // wait for exit animation
+    }, hold)
     return () => clearTimeout(timer)
-  }, [onReady])
+  }, [onReady, reduceMotion])
 
   return (
     <AnimatePresence>
@@ -22,15 +24,15 @@ export default function SplashScreen({ onReady }: { onReady: () => void }) {
         <motion.div
           className="splash-screen"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduceMotion ? 0.1 : 0.45, ease: [0.23, 1, 0.32, 1] }}
         >
           <div className="splash-bg" />
           <motion.div
             className="splash-content"
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, delay: reduceMotion ? 0 : 0.15, ease: [0.23, 1, 0.32, 1] }}
           >
             <img
               src={`${import.meta.env.BASE_URL}icons/icon-192.png`}
@@ -39,9 +41,9 @@ export default function SplashScreen({ onReady }: { onReady: () => void }) {
             />
             <motion.h1
               className="splash-title"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.5 }}
+              transition={{ duration: 0.35, delay: reduceMotion ? 0 : 0.4, ease: [0.23, 1, 0.32, 1] }}
             >
               Hyphe
             </motion.h1>
@@ -49,7 +51,7 @@ export default function SplashScreen({ onReady }: { onReady: () => void }) {
               className="splash-subtitle"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.7 }}
+              transition={{ duration: 0.35, delay: reduceMotion ? 0 : 0.55, ease: [0.23, 1, 0.32, 1] }}
             >
               Progressive overload, simplified
             </motion.p>

@@ -132,7 +132,9 @@
     @apply bg-input text-foreground border-border rounded-lg;
     padding: 12px 14px;
     font-size: 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out);
     }
   input:focus, select:focus, textarea:focus {
     @apply border-ring ring-2 ring-ring/20;

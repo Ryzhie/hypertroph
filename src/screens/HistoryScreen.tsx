@@ -1,5 +1,6 @@
-import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
+import { ChevronDownIcon, ChartIcon } from '../components/Icons'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import Tip, { GLOSSARY } from '../components/Tip'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
@@ -55,7 +56,7 @@ function SessionsView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
   if (sessions.length === 0) {
     return (
       <div className="empty">
-        <div className="empty-icon">📊</div>
+        <div className="empty-icon"><ChartIcon /></div>
         <h3>No workouts yet</h3>
         <p className="muted">Finish your first session from Today and it will show up here.</p>
       </div>
@@ -71,9 +72,20 @@ function SessionsView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
         <StatTile label="Total volume" value={`${fmtNum(toDisplayWeight(totalVolume, unit))} ${unit}·r`} />
       </div>
 
-      {sessions.map((s, i) => (
-        <SessionCard key={s.id} session={s} unit={unit} defaultOpen={i === 0} />
-      ))}
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+      >
+        {sessions.map((s, i) => (
+          <motion.div
+            key={s.id}
+            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] } } }}
+          >
+            <SessionCard session={s} unit={unit} defaultOpen={i === 0} />
+          </motion.div>
+        ))}
+      </motion.div>
     </>
   )
 }
@@ -113,7 +125,13 @@ function SessionCard({
           <span className="faint small">{session.splitName}</span>
         </span>
         <span className="chevron" aria-hidden>
-          {open ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            style={{ display: 'inline-flex' }}
+          >
+            <ChevronDownIcon size={18} />
+          </motion.span>
         </span>
       </button>
 
@@ -127,27 +145,34 @@ function SessionCard({
           ))}
         </ul>
       ) : (
-        <div className="session-detail">
-          {logged.map((l, i) => (
-            <div key={i} className="hist-exercise">
-              <div className="hist-exercise-name">{l.exerciseName}</div>
-              <div className="hist-sets">
-                {l.sets.map((set, j) => (
-                  <div key={j} className="hist-set">
-                    <span className="set-index">{j + 1}</span>
-                    <span className="mono">
-                      {set.weightKg > 0
-                        ? `${formatWeightNumber(set.weightKg, unit)} ${unit}${perHandSuffix(l.perHand)}`
-                        : ''}
-                    </span>
-                    <span className="mono faint">× {set.reps}</span>
-                    {set.rpe != null && <span className="faint small">RPE {set.rpe}</span>}
-                  </div>
-                ))}
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+          style={{ overflow: 'hidden' }}
+        >
+          <div className="session-detail">
+            {logged.map((l, i) => (
+              <div key={i} className="hist-exercise">
+                <div className="hist-exercise-name">{l.exerciseName}</div>
+                <div className="hist-sets">
+                  {l.sets.map((set, j) => (
+                    <div key={j} className="hist-set">
+                      <span className="set-index">{j + 1}</span>
+                      <span className="mono">
+                        {set.weightKg > 0
+                          ? `${formatWeightNumber(set.weightKg, unit)} ${unit}${perHandSuffix(l.perHand)}`
+                          : ''}
+                      </span>
+                      <span className="mono faint">× {set.reps}</span>
+                      {set.rpe != null && <span className="faint small">RPE {set.rpe}</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </motion.div>
       )}
 
       <div className="session-foot">
@@ -193,7 +218,7 @@ function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
   if (withProgress.length === 0) {
     return (
       <div className="empty">
-        <div className="empty-icon">📊</div>
+        <div className="empty-icon"><ChartIcon /></div>
         <h3>No strength data yet</h3>
         <p className="muted">Log a few sessions and the estimated one-rep max trend for each lift appears here.</p>
       </div>
@@ -213,14 +238,21 @@ function ProgressView({ sessions, unit }: { sessions: WorkoutSession[]; unit: We
         </select>
       </div>
 
-      <ProgressDetail
-        sessions={sessions}
-        exerciseId={active.id}
-        name={active.name}
-        isBodyweight={active.isBodyweight === true}
-        perHand={active.perHand === true}
-        unit={unit}
-      />
+      <motion.div
+        key={active.id}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <ProgressDetail
+          sessions={sessions}
+          exerciseId={active.id}
+          name={active.name}
+          isBodyweight={active.isBodyweight === true}
+          perHand={active.perHand === true}
+          unit={unit}
+        />
+      </motion.div>
     </>
   )
 }
@@ -464,8 +496,14 @@ function E1rmChart({ history, unit, perHand }: { history: E1rmPoint[]; unit: Wei
         {fmtNum(min)}
       </text>
 
-      <path d={area} fill="url(#e1rm-fill)" />
-      <polyline
+      <motion.path
+        d={area}
+        fill="url(#e1rm-fill)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.25, ease: [0.23, 1, 0.32, 1] }}
+      />
+      <motion.polyline
         points={line}
         fill="none"
         stroke="var(--accent)"
@@ -473,11 +511,33 @@ function E1rmChart({ history, unit, perHand }: { history: E1rmPoint[]; unit: Wei
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
       />
-      <circle cx={lx} cy={ly} r={4.5} fill="var(--accent)" stroke="var(--bg-elevated)" strokeWidth={2} />
-      <text x={endX} y={ly - 9} textAnchor={endAnchor} className="e1rm-end-label">
+      <motion.circle
+        cx={lx}
+        cy={ly}
+        r={4.5}
+        fill="var(--accent)"
+        stroke="var(--bg-elevated)"
+        strokeWidth={2}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', bounce: 0.5, duration: 0.5, delay: 0.7 }}
+        style={{ transformOrigin: `${lx}px ${ly}px` }}
+      />
+      <motion.text
+        x={endX}
+        y={ly - 9}
+        textAnchor={endAnchor}
+        className="e1rm-end-label"
+        initial={{ opacity: 0, x: endX + 4 }}
+        animate={{ opacity: 1, x: endX }}
+        transition={{ duration: 0.3, delay: 0.8, ease: [0.23, 1, 0.32, 1] }}
+      >
         {lastValue}
-      </text>
+      </motion.text>
       <text x={PAD_LEFT} y={CHART_H - 2} className="e1rm-axis-label">
         {formatDateKey(history[0].date)}
       </text>

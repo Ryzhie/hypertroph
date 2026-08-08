@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { motion } from 'framer-motion'
 import { db } from '../db/db'
 import { useSettings } from '../hooks/useSettings'
 import { useProgress } from '../hooks/useProgress'
@@ -8,6 +9,7 @@ import { buildAiPrompt, parseAiResponse } from '../services/ai'
 import { exportBackup, importBackup } from '../utils/exportImport'
 import { fromDisplayWeight, toDisplayWeight } from '../utils/format'
 import { formatDateKey } from '../utils/date'
+import { applyThemeVars, THEMES, type ThemeName } from '../themes'
 import type {
   ActivityLevel,
   BodyProfile,
@@ -321,36 +323,6 @@ export default function SettingsScreen() {
   )
 }
 
-type ThemeName = 'midnight' | 'slate' | 'ocean' | 'forest' | 'violet'
-
-const THEMES: Record<ThemeName, Record<string, string>> = {
-  midnight: {
-    '--bg': '#0f1218', '--bg-elevated': '#171c24', '--bg-card': '#1a1f29',
-    '--border': '#252d3a', '--accent': '#f59e0b', '--accent-strong': '#fbbf24',
-    '--text-dim': '#a0aec0', '--text-faint': '#6b7a90',
-  },
-  slate: {
-    '--bg': '#0e1117', '--bg-elevated': '#151a24', '--bg-card': '#1a2030',
-    '--border': '#2a3444', '--accent': '#60a5fa', '--accent-strong': '#93c5fd',
-    '--text-dim': '#94b4d8', '--text-faint': '#6889ad',
-  },
-  ocean: {
-    '--bg': '#0b1120', '--bg-elevated': '#131c30', '--bg-card': '#182240',
-    '--border': '#2a3a5a', '--accent': '#38bdf8', '--accent-strong': '#7dd3fc',
-    '--text-dim': '#8ec5d8', '--text-faint': '#5f9ab8',
-  },
-  forest: {
-    '--bg': '#0e1510', '--bg-elevated': '#162018', '--bg-card': '#1c2a1e',
-    '--border': '#2d3f30', '--accent': '#4ade80', '--accent-strong': '#86efac',
-    '--text-dim': '#8bc4a0', '--text-faint': '#5f9a76',
-  },
-  violet: {
-    '--bg': '#12101a', '--bg-elevated': '#1a1724', '--bg-card': '#201d2e',
-    '--border': '#342f44', '--accent': '#a78bfa', '--accent-strong': '#c4b5fd',
-    '--text-dim': '#b0a8cc', '--text-faint': '#8078a0',
-  },
-}
-
 function AppearanceSection() {
   const [theme, setTheme] = useState<ThemeName>(() => {
     try { return (localStorage.getItem('overload-theme') as ThemeName) || 'midnight' } catch { return 'midnight' }
@@ -362,10 +334,13 @@ function AppearanceSection() {
   function applyTheme(name: ThemeName) {
     setTheme(name)
     localStorage.setItem('overload-theme', name)
-    const vars = THEMES[name]
-    for (const [k, v] of Object.entries(vars)) {
-      document.documentElement.style.setProperty(k, v)
-    }
+    // Cross-fade the color change instead of snapping it.
+    document.documentElement.classList.add('theme-changing')
+    applyThemeVars(name)
+    window.setTimeout(
+      () => document.documentElement.classList.remove('theme-changing'),
+      320,
+    )
   }
 
   function applyFontSize(size: number) {
@@ -378,7 +353,12 @@ function AppearanceSection() {
   // applyTheme/applyFontSize below handle live changes from the UI.
 
   return (
-    <div className="card settings-block">
+    <motion.div
+      className="card settings-block"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+    >
       <div className="card-title">Appearance</div>
 
       <div className="field">
@@ -417,7 +397,7 @@ function AppearanceSection() {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

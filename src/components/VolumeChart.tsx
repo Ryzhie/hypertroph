@@ -3,6 +3,7 @@
  * Pure component — no external charting library needed.
  */
 
+import { motion } from 'framer-motion'
 import type { WorkoutSession } from '../types/session'
 import { toDisplayWeight } from '../utils/format'
 
@@ -61,14 +62,14 @@ export default function VolumeChart({ sessions, unit, days = 30 }: Props) {
         className="chart-grid"
       />
 
-      {/* Bars */}
+      {/* Bars — grow in from the baseline, staggered, with a spring feel */}
       {dailyVol.map((d, i) => {
         const val = values[i]
         const barH = maxVol > 0 ? (val / maxVol) * plotH : 0
         const x = PAD.left + i * (plotW / dailyVol.length)
         const y = H - PAD.bottom - barH
         return (
-          <rect
+          <motion.rect
             key={d.date}
             x={x}
             y={y}
@@ -77,6 +78,15 @@ export default function VolumeChart({ sessions, unit, days = 30 }: Props) {
             rx={2}
             fill={val > 0 ? 'var(--accent)' : 'var(--body-idle)'}
             opacity={val > 0 ? 0.85 : 0.3}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{
+              type: 'spring',
+              bounce: 0.35,
+              duration: 0.6,
+              delay: i * 0.02,
+            }}
+            style={{ transformOrigin: `${x + barW / 2}px ${H - PAD.bottom}px` }}
           />
         )
       })}

@@ -1,6 +1,6 @@
 import { Component, type ReactNode, useCallback, useEffect, useState } from 'react'
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { registerSW } from 'virtual:pwa-register'
 import { seedIfNeeded } from './db/seed'
 import TodayScreen from './screens/TodayScreen'
@@ -10,6 +10,7 @@ import ExercisesScreen from './screens/ExercisesScreen'
 import SplitsScreen from './screens/SplitsScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import SplashScreen from './components/SplashScreen'
+import { AlertIcon } from './components/Icons'
 import { Home, BarChart3, Dumbbell, Calendar, Settings } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -33,7 +34,7 @@ function AnimatedRoutes() {
         initial={first ? false : { opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: first ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: first ? 0 : 0.24, ease: [0.23, 1, 0.32, 1] }}
         style={{ flex: 1 }}
       >
         <Routes location={location}>
@@ -73,6 +74,7 @@ export default function App() {
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="app-shell">
       {/* Subtle grain texture overlay for premium feel */}
       <div className="grain-bg" />
@@ -115,6 +117,7 @@ export default function App() {
         <AnimatedRoutes />
       </ErrorBoundary>
     </div>
+    </MotionConfig>
   )
 }
 
@@ -132,7 +135,7 @@ class ErrorBoundary extends Component<
       return (
         <div className="screen">
           <div className="empty">
-            <div className="empty-icon">⚠️</div>
+            <div className="empty-icon"><AlertIcon /></div>
             <h3>Something went wrong</h3>
             <p className="muted small">{this.state.error.message}</p>
             <details style={{ textAlign: 'left', marginTop: 12, fontSize: '0.8rem' }}>

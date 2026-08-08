@@ -1,5 +1,6 @@
-import { ChevronUpIcon, ChevronDownIcon } from '../components/Icons'
+import { ChevronDownIcon, MoonIcon } from '../components/Icons'
 import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useTodayPlan } from '../hooks/useTodayPlan'
 import { db, SETTINGS_ID } from '../db/db'
@@ -42,7 +43,7 @@ export default function LoggingScreen() {
     return (
       <div className="screen">
         <div className="empty">
-          <div className="empty-icon">💤</div>
+          <div className="empty-icon"><MoonIcon /></div>
           <p>No workout scheduled today.</p>
           <button className="btn" onClick={() => navigate('/')}>
             Back to Today
@@ -55,7 +56,7 @@ export default function LoggingScreen() {
   if (result) {
     return (
       <div className="screen">
-        <div className="topbar-title">Workout saved 💪</div>
+        <div className="topbar-title">Workout saved</div>
         <p className="muted small">
           {plan.dayName} · {plan.weekdayName} · targets updated for next time
         </p>
@@ -162,10 +163,26 @@ export default function LoggingScreen() {
                   {hasData && <span className="chip chip-good" style={{ marginLeft: 6, fontSize: '0.7rem' }}>logged</span>}
                 </div>
               </div>
-              <span className="chevron" aria-hidden>{isOpen ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}</span>
+              <span className="chevron" aria-hidden>
+                <motion.span
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ display: 'inline-flex' }}
+                >
+                  <ChevronDownIcon size={18} />
+                </motion.span>
+              </span>
             </button>
 
-            {isOpen && (<>
+            <AnimatePresence initial={false}>
+            {isOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+                style={{ overflow: 'hidden' }}
+              >
               <div className="exercise-head-actions">
                 {rows.length > 1 && (
                   <button
@@ -218,7 +235,9 @@ export default function LoggingScreen() {
                 + Add set
               </button>
             )}
-            </>)}
+              </motion.div>
+            )}
+            </AnimatePresence>
           </div>
         )
       })}

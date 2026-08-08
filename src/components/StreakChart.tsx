@@ -3,6 +3,7 @@
  * which days had training in the last 14 days. Simple, visual, motivating.
  */
 
+import { motion } from 'framer-motion'
 import type { WorkoutSession } from '../types/session'
 
 interface Props {
@@ -50,13 +51,22 @@ export default function StreakChart({ sessions, days = 14 }: Props) {
         {dots.map((dot, i) => {
           const x = DOT_R + i * spacing
           return (
-            <circle
+            <motion.circle
               key={i}
               cx={x}
               cy={H / 2}
               r={DOT_R}
               fill={dot.filled ? 'var(--accent)' : 'var(--body-idle)'}
               opacity={dot.filled ? 0.9 : 0.3}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{
+                type: 'spring',
+                bounce: 0.5,
+                duration: 0.5,
+                delay: i * 0.03,
+              }}
+              style={{ transformOrigin: `${x}px ${H / 2}px` }}
             />
           )
         })}
