@@ -15,6 +15,7 @@ export interface HypheTheme {
   '--accent': string
   '--accent-strong': string
   '--accent-glow': string
+  '--accent-soft': string
   '--text-dim': string
   '--text-faint': string
 }
@@ -30,6 +31,7 @@ export const THEMES = {
     '--accent': '#f59e0b',
     '--accent-strong': '#fbbf24',
     '--accent-glow': 'rgba(245, 158, 11, 0.35)',
+    '--accent-soft': 'rgba(245, 158, 11, 0.15)',
     '--text-dim': '#a0aec0',
     '--text-faint': '#6b7a90',
   },
@@ -41,6 +43,7 @@ export const THEMES = {
     '--accent': '#60a5fa',
     '--accent-strong': '#93c5fd',
     '--accent-glow': 'rgba(96, 165, 250, 0.35)',
+    '--accent-soft': 'rgba(96, 165, 250, 0.15)',
     '--text-dim': '#94b4d8',
     '--text-faint': '#6889ad',
   },
@@ -52,6 +55,7 @@ export const THEMES = {
     '--accent': '#38bdf8',
     '--accent-strong': '#7dd3fc',
     '--accent-glow': 'rgba(56, 189, 248, 0.35)',
+    '--accent-soft': 'rgba(56, 189, 248, 0.15)',
     '--text-dim': '#8ec5d8',
     '--text-faint': '#5f9ab8',
   },
@@ -63,6 +67,7 @@ export const THEMES = {
     '--accent': '#4ade80',
     '--accent-strong': '#86efac',
     '--accent-glow': 'rgba(74, 222, 128, 0.35)',
+    '--accent-soft': 'rgba(74, 222, 128, 0.15)',
     '--text-dim': '#8bc4a0',
     '--text-faint': '#5f9a76',
   },
@@ -74,6 +79,7 @@ export const THEMES = {
     '--accent': '#a78bfa',
     '--accent-strong': '#c4b5fd',
     '--accent-glow': 'rgba(167, 139, 250, 0.35)',
+    '--accent-soft': 'rgba(167, 139, 250, 0.15)',
     '--text-dim': '#b0a8cc',
     '--text-faint': '#8078a0',
   },

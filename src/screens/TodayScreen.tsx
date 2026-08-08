@@ -45,7 +45,7 @@ export default function TodayScreen() {
   const warned = plan.entries.some((e) => e.target.mode === 'deload' || e.target.mode === 'deload-suggested')
 
   return (
-    <div className="space-y-5 p-4 md:p-8 max-w-4xl mx-auto">
+    <div className="today-screen space-y-5 max-w-4xl mx-auto">
       {/* Hero header */}
       <motion.header
         initial={{ opacity: 0, y: reduceMotion ? 0 : -10 }}
@@ -100,7 +100,7 @@ export default function TodayScreen() {
                       e.target.mode === 'increase' ? 'bg-emerald-500/15 text-emerald-400' :
                       e.target.mode === 'deload' || e.target.mode === 'deload-suggested' ? 'bg-amber-500/15 text-amber-400' :
                       e.target.mode === 'hold-high-rpe' ? 'bg-red-500/15 text-red-400' :
-                      'bg-accent/15 text-accent'
+                      'bg-accent-soft text-accent'
                     }`}>
                       {modeLabel(e.target.mode)}
                     </span>
@@ -161,7 +161,7 @@ function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
         Recovery is where the gains happen.
         {next && <><br />Next up: <strong className="text-foreground">{next.name}</strong> on {formatDateKey(next.dateKey)}.</>}
       </p>
-      {plan.splitName && <span className="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-accent/15 text-accent">{plan.splitName}</span>}
+      {plan.splitName && <span className="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-accent-soft text-accent">{plan.splitName}</span>}
     </motion.div>
   )
 }
@@ -236,7 +236,7 @@ function TipsSection({ tips }: { tips: TipType[] }) {
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
             t.accent === 'warn' ? 'bg-amber-500/15 text-amber-400' :
             t.accent === 'good' ? 'bg-emerald-500/15 text-emerald-400' :
-            'bg-accent/15 text-accent'
+            'bg-accent-soft text-accent'
           }`}>{t.accent}</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">{t.headline}</p>

@@ -24,6 +24,8 @@
   --accent-strong: oklch(0.82 0.17 80);
   --accent-ink: var(--primary-foreground);
   --accent-subtle: oklch(0.75 0.18 80 / 12%);
+  /* Solid-rgba soft accent fill (no color-mix) — themes override this. */
+  --accent-soft: rgba(245, 158, 11, 0.15);
 
   /* --- Semantic --- */
   --good: #4ade80;

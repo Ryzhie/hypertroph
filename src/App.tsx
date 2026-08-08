@@ -33,19 +33,40 @@ function AnimatedRoutes() {
     mq.addEventListener('change', onChange)
     return () => mq.removeEventListener('change', onChange)
   }, [])
-  // Mobile: opacity-only transitions — y-translating the whole page makes text
-  // blurry/shaky during sub-pixel rendering. Desktop keeps the subtle slide.
-  const enter = mobile ? { opacity: 0 } : { opacity: 0, y: 6 }
-  const exit = mobile ? { opacity: 0 } : { opacity: 0, y: -4 }
+  // Mobile: instant tab switches (native-app feel, zero jank). The old opacity
+  // fade still caused visible stutter because each route mounts its own stagger
+  // entrance + the whole tree re-rasterizes mid-fade on mobile GPUs.
+  if (mobile) {
+    return (
+      // reducedMotion="always" makes every descendant skip transform/scale
+      // animations — in-screen entrance staggers collapse to opacity-only
+      // fades, which composite cheaply. This kills the y-slide shimmer without
+      // touching desktop (which stays reducedMotion="user").
+      <MotionConfig reducedMotion="always">
+        <div style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<TodayScreen />} />
+            <Route path="/log" element={<LoggingScreen />} />
+            <Route path="/history" element={<HistoryScreen />} />
+            <Route path="/exercises" element={<ExercisesScreen />} />
+            <Route path="/plans" element={<SplitsScreen />} />
+            <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="*" element={<TodayScreen />} />
+          </Routes>
+        </div>
+      </MotionConfig>
+    )
+  }
 
+  // Desktop: subtle slide + fade between routes.
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={first ? false : enter}
+        initial={first ? false : { opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={exit}
-        transition={{ duration: first ? 0 : mobile ? 0.18 : 0.24, ease: [0.23, 1, 0.32, 1] }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{ duration: first ? 0 : 0.24, ease: [0.23, 1, 0.32, 1] }}
         style={{ flex: 1 }}
       >
         <Routes location={location}>

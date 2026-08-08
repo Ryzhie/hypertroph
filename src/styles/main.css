@@ -1,5 +1,13 @@
 /* Hyphe app styles. Grows with the screens. */
 
+/* Soft accent chip background. Uses --accent-soft (solid rgba per theme) instead
+   of Tailwind's bg-accent/15, which compiles to color-mix() on mobile and falls
+   back to SOLID var(--accent) — turning chips into full capsules with invisible
+   accent text. */
+.bg-accent-soft {
+  background-color: var(--accent-soft);
+}
+
 /* Hero heading. Gradient-clipped text (bg-clip-text) renders blurry/jagged on
    many mobile browsers, so it's solid on mobile and gradient only on desktop. */
 .hero-title {
@@ -93,6 +101,19 @@ html.theme-changing *::after {
 @media (min-width: 1200px) {
   .screen {
     padding: 28px 40px calc(88px + env(safe-area-inset-bottom));
+  }
+}
+
+/* TodayScreen keeps its own max-width wrapper, but needs the same safe-area
+   top/bottom padding as .screen so content clears the notch/status bar and the
+   bottom nav — plain `p-4` let the status bar overlap the header. */
+.today-screen {
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(88px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .today-screen {
+    padding: 24px 32px 40px;
   }
 }
 
