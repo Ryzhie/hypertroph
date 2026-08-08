@@ -35,6 +35,12 @@ export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'ver
 export type TrainingGoal = 'lose-fat' | 'maintain' | 'muscle-gain'
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced'
 
+/** One recorded body-weight measurement (date is YYYY-MM-DD, weightKg canonical). */
+export interface BodyWeightPoint {
+  date: string
+  weightKg: number
+}
+
 /**
  * Anthropometrics + lifestyle. Feeds the dashboard body metrics, tips engine,
  * and the exported AI-analysis prompt. All optional until the user fills them in.
@@ -48,6 +54,8 @@ export interface BodyProfile {
   activityLevel: ActivityLevel
   goal: TrainingGoal
   experience: ExperienceLevel
+  /** Imported trend (e.g. from Apple Health). Optional → no migration needed. */
+  bodyWeightHistory?: BodyWeightPoint[]
 }
 
 export interface Settings {
