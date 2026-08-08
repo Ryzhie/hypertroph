@@ -53,7 +53,7 @@ export default function TodayScreen() {
         transition={{ duration: reduceMotion ? 0.2 : 0.28, ease: [0.23, 1, 0.32, 1] }}
       >
         <p className="text-sm text-muted-foreground mb-1">{formatDateKey(plan.today)} · {plan.splitName}</p>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent">
+        <h1 className="hero-title text-3xl md:text-4xl font-extrabold tracking-tight">
           {plan.isRestDay ? 'Rest day' : plan.dayName}
         </h1>
       </motion.header>

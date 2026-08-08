@@ -127,6 +127,12 @@
     }
   html {
     @apply font-sans;
+    /* Prevent iOS Safari from auto-inflating text (causes mid-scroll font jumps)
+       and keep subpixel/legibility rendering stable across mobile browsers. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
     }
   input, select, textarea {
     @apply bg-input text-foreground border-border rounded-lg;

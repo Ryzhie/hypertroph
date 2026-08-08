@@ -24,17 +24,28 @@ const NAV_ITEMS = [
 function AnimatedRoutes() {
   const location = useLocation()
   const [first, setFirst] = useState(true)
+  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches)
   // Skip initial animation after splash screen (only animate route changes)
   useEffect(() => { if (first) setFirst(false) }, [first])
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const onChange = (e: MediaQueryListEvent) => setMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  // Mobile: opacity-only transitions — y-translating the whole page makes text
+  // blurry/shaky during sub-pixel rendering. Desktop keeps the subtle slide.
+  const enter = mobile ? { opacity: 0 } : { opacity: 0, y: 6 }
+  const exit = mobile ? { opacity: 0 } : { opacity: 0, y: -4 }
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={first ? false : { opacity: 0, y: 6 }}
+        initial={first ? false : enter}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: first ? 0 : 0.24, ease: [0.23, 1, 0.32, 1] }}
+        exit={exit}
+        transition={{ duration: first ? 0 : mobile ? 0.18 : 0.24, ease: [0.23, 1, 0.32, 1] }}
         style={{ flex: 1 }}
       >
         <Routes location={location}>
