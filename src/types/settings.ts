@@ -66,6 +66,8 @@ export interface Settings {
   params: AlgorithmParams
   /** Body metrics the user entered (dashboard avatar + tips + AI export). */
   body?: BodyProfile
+  /** Dates where the user wants to rest instead of the scheduled workout. */
+  restDayOverrides?: string[]
 }
 
 export const DEFAULT_PARAMS: AlgorithmParams = {

@@ -1,5 +1,5 @@
 import { ChevronDownIcon, MoonIcon } from '../components/Icons'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useTodayPlan } from '../hooks/useTodayPlan'
@@ -7,6 +7,8 @@ import { db, SETTINGS_ID } from '../db/db'
 import { finishWorkout, type FinishedExercise } from '../services/overload'
 import { fromDisplayWeight, formatWeightNumber, perHandSuffix } from '../utils/format'
 import SetRow, { type DraftSet } from '../components/SetRow'
+import RestTimer from '../components/RestTimer'
+import { saveDraft, loadDraft, clearDraft } from '../services/sessionDraft'
 import type { WorkoutExerciseLog, WorkoutSet } from '../types/session'
 
 export default function LoggingScreen() {
@@ -19,10 +21,41 @@ export default function LoggingScreen() {
   const [saving, setSaving] = useState(false)
   // Only one exercise shows its full set-entry UI at a time.
   const [expanded, setExpanded] = useState<string | null>(null)
+  // Rest timer: starts after a set is logged.
+  const [restTimer, setRestTimer] = useState<{
+    exerciseId: string
+    exerciseName: string
+    restSeconds: number
+  } | null>(null)
+  const [restTimerKey, setRestTimerKey] = useState(0)
+  const loadedDraftRef = useRef(false)
+  const draftGenRef = useRef(0)
 
   // (Re)build the draft once the day loads or changes.
   useEffect(() => {
     if (!plan.day) return
+    const gen = ++draftGenRef.current
+    loadedDraftRef.current = false
+    // Try to restore a saved draft for this day (resume feature).
+    loadDraft(plan.day.id)
+      .then((saved) => {
+        if (gen !== draftGenRef.current) return // Stale response — ignore
+        if (saved && saved.drafts) {
+          setDrafts(saved.drafts)
+          loadedDraftRef.current = true
+        } else {
+          buildInitialDrafts()
+        }
+      })
+      .catch(() => {
+        if (gen !== draftGenRef.current) return
+        buildInitialDrafts()
+        loadedDraftRef.current = true
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan.day?.id])
+
+  const buildInitialDrafts = () => {
     const init: Record<string, DraftSet[]> = {}
     for (const e of plan.entries) {
       const w =
@@ -36,8 +69,25 @@ export default function LoggingScreen() {
       }))
     }
     setDrafts(init)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan.day?.id])
+  }
+
+  // Autosave drafts whenever they change (after initial load).
+  useEffect(() => {
+    if (!plan.day || !loadedDraftRef.current) return
+    if (result) return
+    void saveDraft({ dayId: plan.day.id, drafts })
+  }, [drafts, plan.day, result])
+
+  const startRestTimer = useCallback((exerciseId: string) => {
+    const entry = plan.entries.find((e) => e.exercise.id === exerciseId)
+    if (!entry || entry.eff.restSeconds <= 0) return
+    setRestTimer({
+      exerciseId,
+      exerciseName: entry.exercise.name,
+      restSeconds: entry.eff.restSeconds,
+    })
+    setRestTimerKey((t) => t + 1)
+  }, [plan.entries])
 
   if (plan.isRestDay) {
     return (
@@ -122,15 +172,23 @@ export default function LoggingScreen() {
         db.splits.get(plan.splitId),
       ])
       if (!settings || !split) return
-      const { results } = await finishWorkout({
-        split,
-        day: plan.day,
-        logs,
-        exercises,
-        settings,
-        dateKey: plan.today,
-      })
-      setResult(results)
+      // Use a transaction to ensure draft is cleared atomically with workout save.
+      await db.transaction(
+        'rw',
+        [db.sessions, db.progress, db.drafts],
+        async () => {
+          const { results } = await finishWorkout({
+            split,
+            day: plan.day!,
+            logs,
+            exercises,
+            settings,
+            dateKey: plan.today,
+          })
+          await clearDraft(plan.day!.id)
+          setResult(results)
+        },
+      )
     } finally {
       setSaving(false)
     }
@@ -142,6 +200,7 @@ export default function LoggingScreen() {
         {plan.dayName} <span className="faint small">· {plan.weekdayName}</span>
       </div>
 
+      <div className="logging-grid">
       {plan.entries.map((e) => {
         const rows = drafts[e.exercise.id] ?? []
         const isOpen = expanded === e.exercise.id
@@ -208,13 +267,20 @@ export default function LoggingScreen() {
                 set={row}
                 unit={unit}
                 perHand={e.exercise.perHand === true}
-                onChange={(next) =>
+                onChange={(next) => {
                   setDrafts((d) => {
                     const list = [...d[e.exercise.id]]
                     list[i] = next
                     return { ...d, [e.exercise.id]: list }
                   })
-                }
+                  // Start rest timer only when reps are entered (not weight edit).
+                  // Compare prevReps to nextReps to avoid triggering on weight/rpe changes.
+                  const prevReps = parseInt(row.reps, 10)
+                  const nextReps = parseInt(next.reps, 10)
+                  if (!Number.isNaN(nextReps) && nextReps > 0 && (Number.isNaN(prevReps) || prevReps <= 0)) {
+                    startRestTimer(e.exercise.id)
+                  }
+                }}
                 onRemove={() =>
                   setDrafts((d) => ({
                     ...d,
@@ -241,6 +307,7 @@ export default function LoggingScreen() {
           </div>
         )
       })}
+      </div>
 
       <button
         className="btn btn-primary btn-block finish-btn"
@@ -249,6 +316,17 @@ export default function LoggingScreen() {
       >
         {saving ? 'Saving…' : 'Finish workout'}
       </button>
+
+      <AnimatePresence>
+        {restTimer && (
+          <RestTimer
+            key={restTimerKey}
+            durationSeconds={restTimer.restSeconds}
+            exerciseName={restTimer.exerciseName}
+            onDone={() => setRestTimer(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

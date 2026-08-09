@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { MoonIcon } from '../components/Icons'
@@ -8,6 +8,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useProgress } from '../hooks/useProgress'
 import { useSettings } from '../hooks/useSettings'
 import { db } from '../db/db'
+import { loadDraft } from '../services/sessionDraft'
 import { generateTips, type Tip as TipType } from '../services/tips'
 import { computeTopSet } from '../services/overload'
 import VolumeChart from '../components/VolumeChart'
@@ -31,7 +32,7 @@ export default function TodayScreen() {
   const plan = useTodayPlan()
   const { sessions } = useSessions()
   const { progress } = useProgress()
-  const { settings } = useSettings()
+  const { settings, update } = useSettings()
   const exercisesRaw = useLiveQuery(() => db.exercises.toArray(), [])
   const exercises = Array.isArray(exercisesRaw) ? exercisesRaw : []
   const params = settings?.params ?? defaultParams()
@@ -43,6 +44,23 @@ export default function TodayScreen() {
   const unit = plan.targetWeightUnit
   const lastSession = sessions[0]
   const warned = plan.entries.some((e) => e.target.mode === 'deload' || e.target.mode === 'deload-suggested')
+  // Check for saved draft (resume).
+  const [savedDraft, setSavedDraft] = useState<{ dayId: string } | null>(null)
+  useEffect(() => {
+    if (plan.day) {
+      loadDraft(plan.day.id).then((d) => {
+        if (d && plan.day) setSavedDraft(d)
+      })
+    }
+  }, [plan.day])
+
+  const toggleRestDay = async () => {
+    const overrides = settings?.restDayOverrides ?? []
+    const next = overrides.includes(plan.today)
+      ? overrides.filter((d) => d !== plan.today)
+      : [...overrides, plan.today]
+    await update({ restDayOverrides: next })
+  }
 
   return (
     <div className="today-screen space-y-5 max-w-4xl mx-auto">
@@ -56,7 +74,32 @@ export default function TodayScreen() {
         <h1 className="hero-title text-3xl md:text-4xl font-extrabold tracking-tight">
           {plan.isRestDay ? 'Rest day' : plan.dayName}
         </h1>
+        {/* Rest day toggle — always available when there's a plan */}
+        {plan.split && (
+          <button
+            type="button"
+            className="text-xs mt-2 px-3 py-1.5 rounded-full bg-accent-soft text-accent border border-transparent hover:border-accent/30 transition-colors"
+            onClick={toggleRestDay}
+          >
+            {plan.isRestDay ? 'Work out anyway' : 'Rest today'}
+          </button>
+        )}
       </motion.header>
+
+      {/* Resume saved session */}
+      {savedDraft && !plan.isRestDay && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}>
+          <Link to="/log" className="block glass-card border-accent/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-widest text-accent">Resume</span>
+                <p className="text-sm text-muted-foreground mt-1">You have an unfinished workout for today.</p>
+              </div>
+              <span className="text-accent font-semibold text-sm">Continue →</span>
+            </div>
+          </Link>
+        </motion.div>
+      )}
 
       {/* Tips */}
       {tips.length > 0 && <TipsSection tips={tips} />}
@@ -78,7 +121,7 @@ export default function TodayScreen() {
       {/* Workout or Rest */}
       {plan.isRestDay ? (
         <div className="space-y-4">
-          <RestDay plan={plan} />
+          <RestDay plan={plan} overrides={settings?.restDayOverrides ?? []} />
           <BodyCard settings={settings} />
         </div>
       ) : (
@@ -90,10 +133,10 @@ export default function TodayScreen() {
             </motion.div>
           )}
 
-          <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+          <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="today-exercise-grid">
             {plan.entries.map((e) => (
               <motion.div key={e.exercise.id} variants={staggerItem}>
-                <Link to="/log" className="block glass-card hover:border-accent/40 transition-colors duration-200 mb-3">
+                <Link to="/log" className="block glass-card hover:border-accent/40 transition-colors duration-200">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-bold tracking-tight">{e.exercise.name}</h3>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -151,8 +194,8 @@ export default function TodayScreen() {
   )
 }
 
-function RestDay({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
-  const next = nextWorkout(plan)
+function RestDay({ plan, overrides }: { plan: ReturnType<typeof useTodayPlan>; overrides: string[] }) {
+  const next = nextWorkout(plan, overrides)
   return (
     <motion.div className="glass-card rest-card text-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}>
       <div className="text-5xl mb-4 opacity-70"><MoonIcon size={48} /></div>
@@ -249,11 +292,13 @@ function TipsSection({ tips }: { tips: TipType[] }) {
   )
 }
 
-function nextWorkout(plan: ReturnType<typeof useTodayPlan>): { name: string; dateKey: string } | null {
+function nextWorkout(plan: ReturnType<typeof useTodayPlan>, overrides: string[]): { name: string; dateKey: string } | null {
   const split = plan.split
   if (!split) return null
   for (let offset = 1; offset <= 7; offset++) {
     const dateKey = addDaysToKey(plan.today, offset)
+    // Check if this future date is overridden to rest.
+    if (overrides.includes(dateKey)) continue
     const dayKey = split.schedule[weekdayIndex(dateKey)] ?? null
     if (dayKey) {
       const day = split.days[dayKey]

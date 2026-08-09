@@ -24,6 +24,8 @@ export interface TodayPlan {
   day?: PlanDay
   dayName?: string
   isRestDay: boolean
+  /** True when the user flipped the rest/workout state for today. */
+  isOverridden: boolean
   entries: TodayEntry[]
   today: string
   weekdayName: string
@@ -47,11 +49,17 @@ export function useTodayPlan(): TodayPlan {
   const split = splits.find((s) => s.id === settings?.splitId)
   const dayKey = split ? (split.schedule[weekdayIndex(today)] ?? null) : null
   const day = dayKey ? split?.days[dayKey] : undefined
-  const isRestDay = !split || !day || day.isRest
+  // Natural rest = no split, no day scheduled, or day flagged as rest.
+  const naturalRest = !split || !day || day.isRest
+  // User override: toggles the natural state (XOR).
+  const overridden = (settings?.restDayOverrides?.includes(today) ?? false)
+  const isRestDay = naturalRest !== overridden // false↔true XOR semantics
+  const overriddenToday = naturalRest !== isRestDay
 
   const params = settings?.params
   const entries: TodayEntry[] = []
-  if (params && day && !day.isRest) {
+  // Populate entries if it's a natural workout day OR if the user flipped a rest day to workout.
+  if (params && day && !isRestDay) {
     const sorted = [...day.exercises].sort((a, b) => a.order - b.order)
     for (const slot of sorted) {
       const exercise = exercises.find((e) => e.id === slot.exerciseId)
@@ -85,6 +93,7 @@ export function useTodayPlan(): TodayPlan {
     day,
     dayName: day?.name,
     isRestDay,
+    isOverridden: overriddenToday,
     entries,
     today,
     weekdayName,
